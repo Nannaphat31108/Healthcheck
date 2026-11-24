@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ดูแลอารมณ์ครู</title>
+  <meta name="description" content="โปรแกรมส่งเสริมการกำกับอารมณ์แบบออนไลน์สำหรับครูผู้สอนเด็กที่มีภาวะออทิซึมสเปกตรัม (8 สัปดาห์)" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="brand-mark" data-icon="sprout"></span>
+      <span class="brand-text">
+        <small>โปรแกรมออนไลน์</small>
+        <strong>ดูแลอารมณ์ครู</strong>
+        <small>สำหรับครูผู้สอนเด็กออทิสติก</small>
+      </span>
+    </a>
+    <nav class="mainnav" aria-label="เมนูหลัก">
+      <a href="#/" data-nav="home">หน้าแรก</a>
+      <a href="#/program" data-nav="program">โปรแกรม</a>
+      <a href="#/journal" data-nav="journal">บันทึกของฉัน</a>
+      <a href="#/library" data-nav="library">คลังความรู้</a>
+    </nav>
+    <div class="top-icons">
+      <button class="icon-btn" type="button" aria-label="การแจ้งเตือน" data-icon="bell" id="bellBtn"></button>
+      <button class="icon-btn" type="button" aria-label="โปรไฟล์" data-icon="user"></button>
+    </div>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <footer class="note">
+    หมายเหตุ: เว็บไซต์นี้เป็นต้นแบบ (Prototype) สำหรับประกอบการประเมินความเหมาะสมของกิจกรรมและรูปแบบการใช้งาน
+    ข้อความ สถานการณ์ ตัวเลือก และองค์ประกอบบางส่วนอาจปรับปรุงตามข้อเสนอแนะของผู้เชี่ยวชาญก่อนนำไปพัฒนาเป็นระบบใช้งานจริง
+    · ข้อมูลที่บันทึกจะเก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/art.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/somtam.js"></script>
+  <script src="js/bouquet.js"></script>
+  <script src="js/activities.js"></script>
+  <script src="js/reflect.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
