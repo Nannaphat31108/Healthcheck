@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: dulae-arom-kru
+    runtime: static
+    buildCommand: echo "static site - no build step"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
