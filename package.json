@@ -1,0 +1,16 @@
+{
+  "name": "dulae-arom-kru",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ดูแลอารมณ์ครู — online emotion regulation program for teachers of children with ASD",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}

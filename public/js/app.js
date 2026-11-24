@@ -169,7 +169,7 @@
     const all = EC.store.all();
     const groups = EC.WEEKS.map(w => [w, all.filter(e => e.week === w.n)]).filter(([, es]) => es.length);
     return `<div class="journal-page">
-      <div class="jp-head"><div><h1 class="page-title">บันทึกของฉัน</h1><p class="page-sub">ทุกบันทึกเก็บไว้ในเบราว์เซอร์นี้เท่านั้น · ทั้งหมด ${all.length} รายการ</p></div>
+      <div class="jp-head"><div><h1 class="page-title">บันทึกของฉัน</h1><p class="page-sub">${EC.mode === 'server' ? 'บันทึกของคุณเก็บไว้ในระบบอย่างปลอดภัย' : 'ทุกบันทึกเก็บไว้ในเบราว์เซอร์นี้เท่านั้น'} · ทั้งหมด ${all.length} รายการ</p></div>
         <div class="jp-actions"><button type="button" class="btn ghost sm" id="jpExport">${EC.icon('download')} ดาวน์โหลด (JSON)</button>
         <button type="button" class="btn ghost sm" id="jpPrint">${EC.icon('clipboard')} พิมพ์</button>
         ${all.length ? `<button type="button" class="btn ghost sm danger" id="jpClear">${EC.icon('trash')} ลบทั้งหมด</button>` : ''}</div></div>
@@ -205,15 +205,193 @@
     </div>`;
   }
 
+  /* ---------- login / register ---------- */
+  function loginPage() {
+    return `<div class="auth">
+      <div class="auth-art">${EC.art.teacher()}<h2>ดูแลอารมณ์ครู</h2><p>โปรแกรมออนไลน์ 8 สัปดาห์<br>เสริมทักษะการกำกับอารมณ์สำหรับครูผู้สอนเด็กออทิสติก</p></div>
+      <div class="auth-card panel">
+        <div class="auth-tabs" role="tablist"><button type="button" class="on" data-tab="login">เข้าสู่ระบบ</button><button type="button" data-tab="register">ลงทะเบียน</button></div>
+        <form id="loginForm" class="auth-form">
+          <label>ชื่อผู้ใช้<input name="username" autocomplete="username" required></label>
+          <label>รหัสผ่าน<input name="password" type="password" autocomplete="current-password" required></label>
+          <p class="auth-err" role="alert"></p>
+          <button class="btn brown full" type="submit">เข้าสู่ระบบ ${EC.icon('arrow')}</button>
+        </form>
+        <form id="regForm" class="auth-form" hidden>
+          <label>ชื่อที่แสดง <small>(เช่น ครูแอน)</small><input name="displayName" maxlength="80" required></label>
+          <label>ชื่อผู้ใช้ <small>(a-z, 0-9, . _ - อย่างน้อย 3 ตัว)</small><input name="username" autocomplete="username" pattern="[a-zA-Z0-9._\\-]{3,32}" required></label>
+          <label>รหัสผ่าน <small>(อย่างน้อย 8 ตัวอักษร)</small><input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label id="codeRow" hidden>รหัสลงทะเบียน <small>(ได้รับจากผู้วิจัย)</small><input name="code" autocomplete="off"></label>
+          <p class="auth-err" role="alert"></p>
+          <button class="btn green full" type="submit">สร้างบัญชี ${EC.icon('arrow')}</button>
+        </form>
+        <p class="auth-note">ข้อมูลที่คุณบันทึกจะถูกเก็บอย่างปลอดภัยเพื่อใช้ในการวิจัยเท่านั้น</p>
+      </div>
+    </div>`;
+  }
+  function mountLogin() {
+    EC.$$('.auth-tabs button').forEach(b => b.addEventListener('click', () => {
+      EC.$$('.auth-tabs button').forEach(x => x.classList.toggle('on', x === b));
+      EC.$('#loginForm').hidden = b.dataset.tab !== 'login';
+      EC.$('#regForm').hidden = b.dataset.tab !== 'register';
+    }));
+    EC.api('GET', '/api/config').then(c => { EC.$('#codeRow').hidden = !c.registerNeedsCode; }).catch(() => {});
+    const submit = (form, url) => form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = EC.$('button[type=submit]', form), err = EC.$('.auth-err', form);
+      btn.disabled = true; err.textContent = '';
+      try {
+        const r = await EC.api('POST', url, Object.fromEntries(new FormData(form)));
+        await EC.setUser(r.user);
+        updateUserUI();
+        location.hash = r.user.role === 'admin' ? '#/admin' : (sessionStorage.getItem('ec_next') || '#/');
+        sessionStorage.removeItem('ec_next');
+      } catch (ex) { err.textContent = ex.message; }
+      btn.disabled = false;
+    });
+    submit(EC.$('#loginForm'), '/api/login');
+    submit(EC.$('#regForm'), '/api/register');
+  }
+
+  /* ---------- admin ---------- */
+  const fmt = (t) => t ? EC.dateTH(new Date(t).getTime()) : '—';
+  function doneMap(done) {
+    const m = {}; (done || []).forEach(d => { m[d.week] = m[d.week] || {}; m[d.week][d.kind + (d.session || '')] = 1; }); return m;
+  }
+  async function adminPage() {
+    const { users } = await EC.api('GET', '/api/admin/users');
+    const teachers = users.filter(u => u.role === 'teacher');
+    const total = users.reduce((s, u) => s + u.entry_count, 0);
+    const finished = teachers.filter(u => { const m = doneMap(u.done); return EC.WEEKS.every(w => m[w.n]?.a1 && m[w.n]?.a21 && m[w.n]?.a22); }).length;
+    return `<div class="admin">
+      <div class="jp-head"><div><h1 class="page-title">หน้าผู้ดูแลระบบ</h1><p class="page-sub">ติดตามความก้าวหน้าและดาวน์โหลดข้อมูลของผู้เข้าร่วม</p></div>
+        <div class="jp-actions"><a class="btn green sm" href="/api/admin/export.csv">${EC.icon('download')} ดาวน์โหลดทั้งหมด (CSV / Excel)</a>
+        <a class="btn ghost sm" href="/api/admin/export.json">${EC.icon('download')} JSON (ข้อมูลดิบ + ภาพ)</a></div></div>
+      <div class="stats">
+        <div><b>${teachers.length}</b><span>ครูที่ลงทะเบียน</span></div>
+        <div><b>${total}</b><span>บันทึกทั้งหมด</span></div>
+        <div><b>${teachers.filter(u => u.entry_count).length}</b><span>ครูที่เริ่มทำกิจกรรม</span></div>
+        <div><b>${finished}</b><span>ทำครบ 8 สัปดาห์</span></div>
+      </div>
+      <section class="panel"><h3>${EC.icon('people')} ผู้ใช้งาน</h3>
+        <div class="table-wrap"><table class="utable">
+          <thead><tr><th>ผู้ใช้</th><th>ความก้าวหน้า (สัปดาห์ 1–8)</th><th>บันทึก</th><th>เข้าใช้ล่าสุด</th><th></th></tr></thead>
+          <tbody>${users.map(u => { const m = doneMap(u.done); return `<tr>
+            <td><b>${EC.esc(u.display_name)}</b>${u.role === 'admin' ? ' <span class="chip sm">แอดมิน</span>' : ''}<br><small>@${EC.esc(u.username)}</small></td>
+            <td><div class="wkprog">${EC.WEEKS.map(w => `<span class="theme-${w.theme}" title="สัปดาห์ ${w.n}: กิจกรรม ${m[w.n]?.a1 ? '✓' : '–'} · สะท้อน 1 ${m[w.n]?.a21 ? '✓' : '–'} · สะท้อน 2 ${m[w.n]?.a22 ? '✓' : '–'}">
+              <em>${w.n}</em>${['a1', 'a21', 'a22'].map(k => `<i class="${m[w.n]?.[k] ? 'on' : ''}"></i>`).join('')}</span>`).join('')}</div></td>
+            <td>${u.entry_count}</td><td><small>${fmt(u.last_login_at)}</small></td>
+            <td class="acts"><a class="btn sm soft" href="#/admin/user/${u.id}">ดูบันทึก</a>
+              <a class="btn sm ghost" href="/api/admin/export.csv?user=${u.id}" title="ดาวน์โหลด CSV">${EC.icon('download')}</a>
+              <button type="button" class="btn sm ghost" data-reset="${u.id}" data-name="${EC.esc(u.username)}" title="ตั้งรหัสผ่านใหม่">${EC.icon('refresh')}</button>
+              ${u.id !== EC.user.id ? `<button type="button" class="btn sm ghost danger" data-deluser="${u.id}" data-name="${EC.esc(u.username)}" title="ลบผู้ใช้">${EC.icon('trash')}</button>` : ''}</td>
+          </tr>`; }).join('')}</tbody></table></div>
+      </section>
+      <section class="panel mt"><h3>${EC.icon('plus')} สร้างบัญชีให้ผู้เข้าร่วม</h3>
+        <form id="newUser" class="new-user">
+          <input name="displayName" placeholder="ชื่อที่แสดง" maxlength="80" required>
+          <input name="username" placeholder="ชื่อผู้ใช้ เช่น t01" pattern="[a-zA-Z0-9._\\-]{3,32}" required>
+          <input name="password" placeholder="รหัสผ่าน (≥ 8 ตัว)" minlength="8" required>
+          <select name="role"><option value="teacher">ครู</option><option value="admin">ผู้ดูแลระบบ</option></select>
+          <button class="btn brown" type="submit">สร้างบัญชี</button>
+        </form>
+      </section>
+    </div>`;
+  }
+  function mountAdmin() {
+    EC.$('#newUser').addEventListener('submit', async e => {
+      e.preventDefault();
+      try { await EC.api('POST', '/api/admin/users', Object.fromEntries(new FormData(e.target))); EC.toast('สร้างบัญชีแล้ว ✓', 'ok'); route(); }
+      catch (ex) { EC.toast(EC.esc(ex.message), 'err'); }
+    });
+    EC.$$('[data-reset]').forEach(b => b.addEventListener('click', async () => {
+      const pw = prompt(`ตั้งรหัสผ่านใหม่ให้ @${b.dataset.name} (อย่างน้อย 8 ตัวอักษร)`);
+      if (!pw) return;
+      try { await EC.api('POST', `/api/admin/users/${b.dataset.reset}/password`, { password: pw }); EC.toast('ตั้งรหัสผ่านใหม่แล้ว ✓', 'ok'); }
+      catch (ex) { EC.toast(EC.esc(ex.message), 'err'); }
+    }));
+    EC.$$('[data-deluser]').forEach(b => b.addEventListener('click', async () => {
+      if (!confirm(`ลบผู้ใช้ @${b.dataset.name} และบันทึกทั้งหมดของผู้ใช้นี้? การลบย้อนกลับไม่ได้`)) return;
+      try { await EC.api('DELETE', `/api/admin/users/${b.dataset.deluser}`, {}); route(); }
+      catch (ex) { EC.toast(EC.esc(ex.message), 'err'); }
+    }));
+  }
+  async function adminUserPage(id) {
+    const [{ users }, { entries }] = await Promise.all([EC.api('GET', '/api/admin/users'), EC.api('GET', `/api/admin/users/${id}/entries`)]);
+    const u = users.find(x => x.id === +id);
+    if (!u) return '<p>ไม่พบผู้ใช้</p>';
+    const groups = EC.WEEKS.map(w => [w, entries.filter(e => e.week === w.n)]).filter(([, es]) => es.length);
+    return `<div class="journal-page">
+      <p class="crumbs"><a href="#/admin">หน้าผู้ดูแลระบบ</a> › ${EC.esc(u.display_name)}</p>
+      <div class="jp-head"><div><h1 class="page-title">${EC.esc(u.display_name)} <small class="muted">@${EC.esc(u.username)}</small></h1>
+        <p class="page-sub">ลงทะเบียน ${fmt(u.created_at)} · บันทึก ${entries.length} รายการ</p></div>
+        <div class="jp-actions"><a class="btn green sm" href="/api/admin/export.csv?user=${u.id}">${EC.icon('download')} ดาวน์โหลด CSV</a>
+        <button type="button" class="btn ghost sm" onclick="print()">${EC.icon('clipboard')} พิมพ์</button></div></div>
+      ${groups.length ? groups.map(([w, es]) => `<section class="jp-week theme-${w.theme}"><h2><span class="pill-week">สัปดาห์ที่ ${w.n}</span> ${w.title}</h2>
+        ${es.map(e => `<article class="entry"><h4>${EC.esc(e.title)} <small>${EC.dateTH(e.at)}</small></h4>${summarize(e)}</article>`).join('')}</section>`).join('')
+        : '<div class="empty"><p>ผู้ใช้นี้ยังไม่มีบันทึก</p></div>'}
+    </div>`;
+  }
+
+  /* ---------- user menu ---------- */
+  function updateUserUI() {
+    const btn = EC.$('#userBtn'), adminLink = EC.$('#adminNav');
+    const isAdmin = EC.user?.role === 'admin';
+    adminLink.hidden = !isAdmin;
+    btn.title = EC.user ? `${EC.user.displayName} (@${EC.user.username})` : 'โปรไฟล์';
+    EC.$('#userName').textContent = EC.user ? EC.user.displayName : '';
+  }
+  EC.$('#userBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = EC.$('#userMenu');
+    if (EC.mode !== 'server') { EC.toast('โหมดออฟไลน์: ข้อมูลถูกเก็บในเบราว์เซอร์นี้เท่านั้น'); return; }
+    if (!EC.user) { location.hash = '#/login'; return; }
+    menu.innerHTML = `<div class="um-head"><b>${EC.esc(EC.user.displayName)}</b><small>@${EC.esc(EC.user.username)}</small></div>
+      ${EC.user.role === 'admin' ? `<a href="#/admin">${EC.icon('chart')} หน้าผู้ดูแลระบบ</a>` : ''}
+      <a href="#/journal">${EC.icon('book')} บันทึกของฉัน</a>
+      <button type="button" id="umPw">${EC.icon('gear')} เปลี่ยนรหัสผ่าน</button>
+      <button type="button" id="umOut">${EC.icon('back')} ออกจากระบบ</button>`;
+    menu.hidden = !menu.hidden;
+    EC.$('#umOut').onclick = async () => { await EC.api('POST', '/api/logout', {}).catch(() => {}); await EC.setUser(null); updateUserUI(); menu.hidden = true; location.hash = '#/login'; };
+    EC.$('#umPw').onclick = async () => {
+      menu.hidden = true;
+      const current = prompt('รหัสผ่านเดิม'); if (!current) return;
+      const next = prompt('รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)'); if (!next) return;
+      try { await EC.api('POST', '/api/me/password', { current, next }); EC.toast('เปลี่ยนรหัสผ่านแล้ว ✓', 'ok'); } catch (ex) { EC.toast(EC.esc(ex.message), 'err'); }
+    };
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('#userMenu')) EC.$('#userMenu').hidden = true; });
+
   /* ---------- router ---------- */
   const mounts = { somtam: EC.mountSomtam, bouquet: EC.mountBouquet, notebook: EC.mountNotebook, paint: EC.mountPaint, fill: EC.mountFill, boxes: EC.mountBoxes, timeline: EC.mountTimeline, stars: EC.mountStars };
   const renders = { 1: ['somtam', EC.renderSomtam], 2: ['bouquet', EC.renderBouquet], 3: ['notebook', EC.renderNotebook], 4: ['paint', EC.renderPaint], 5: ['fill', EC.renderFill], 6: ['boxes', EC.renderBoxes], 7: ['timeline', EC.renderTimeline], 8: ['stars', EC.renderStars] };
 
-  function route() {
+  let routeSeq = 0;
+  async function route() {
+    const seq = ++routeSeq;
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     let nav = 'home', after = null;
     document.body.className = '';
-    if (!parts.length) { app.innerHTML = home(); }
+    EC.$('#userMenu').hidden = true;
+    // login guard (server mode only)
+    if (EC.mode === 'server' && !EC.user && parts[0] !== 'login') {
+      if (parts.length) sessionStorage.setItem('ec_next', location.hash);
+      location.replace('#/login'); return;
+    }
+    if (parts[0] === 'login' && (EC.mode !== 'server' || EC.user)) { location.replace('#/'); return; }
+    if (parts[0] === 'admin' && EC.user?.role !== 'admin') { location.replace('#/'); return; }
+    document.body.classList.toggle('authed', !!EC.user || EC.mode === 'local');
+    if (parts[0] === 'login') { nav = ''; app.innerHTML = loginPage(); after = mountLogin; document.body.classList.add('on-login'); }
+    else if (parts[0] === 'admin') {
+      nav = 'admin';
+      app.innerHTML = '<p class="loading">กำลังโหลดข้อมูล…</p>';
+      try {
+        const html = parts[1] === 'user' ? await adminUserPage(parts[2]) : await adminPage();
+        if (seq !== routeSeq) return;
+        app.innerHTML = html; after = parts[1] === 'user' ? null : mountAdmin;
+      } catch (ex) { app.innerHTML = `<p class="loading">โหลดข้อมูลไม่สำเร็จ: ${EC.esc(ex.message)}</p>`; }
+    }
+    else if (!parts.length) { app.innerHTML = home(); }
     else if (parts[0] === 'program') { nav = 'program'; app.innerHTML = program(); }
     else if (parts[0] === 'journal') { nav = 'journal'; app.innerHTML = journal(); after = mountJournal; }
     else if (parts[0] === 'library') { nav = 'library'; app.innerHTML = library(); after = mountLibrary; }
@@ -280,5 +458,9 @@
 
   window.addEventListener('hashchange', route);
   EC.hydrateIcons(document);
-  route();
+  EC.boot().then(() => {
+    if (EC.mode === 'local') EC.$('#userName').textContent = '';
+    updateUserUI();
+    route();
+  });
 })(window.EC);

@@ -2,28 +2,77 @@
 (function (EC) {
   const KEY = 'emotioncare.v1';
 
-  /* ---------- storage (local only) ---------- */
-  function load() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || { entries: [] }; } catch (e) { return { entries: [] }; }
+  /* ---------- API ---------- */
+  EC.api = async function (method, url, body) {
+    const res = await fetch(url, {
+      method, credentials: 'same-origin',
+      headers: body !== undefined ? { 'Content-Type': 'application/json' } : {},
+      body: body !== undefined ? JSON.stringify(body) : undefined
+    });
+    const isJSON = (res.headers.get('content-type') || '').includes('application/json');
+    const data = isJSON ? await res.json() : null;
+    if (!res.ok) { const err = new Error(data?.error || `HTTP ${res.status}`); err.status = res.status; err.json = isJSON; throw err; }
+    return data;
+  };
+
+  /* ---------- session & mode ----------
+     server mode: data lives in the database, user must log in
+     local mode:  no backend reachable (e.g. opened as a static site) → localStorage */
+  EC.mode = 'local';
+  EC.user = null;
+  let state = { entries: [] };
+
+  function loadLocal() {
+    try { state = JSON.parse(localStorage.getItem(KEY)) || { entries: [] }; } catch (e) { state = { entries: [] }; }
   }
-  let state = load();
-  function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ } }
+  function persist() { if (EC.mode === 'local') { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* unavailable */ } } }
+
+  EC.boot = async function () {
+    try {
+      const r = await EC.api('GET', '/api/me');
+      EC.mode = 'server'; EC.user = r.user;
+      await EC.loadEntries();
+    } catch (e) {
+      if (e.status === 401 && e.json) { EC.mode = 'server'; EC.user = null; state = { entries: [] }; }
+      else { EC.mode = 'local'; loadLocal(); }
+    }
+  };
+  EC.loadEntries = async function () {
+    const r = await EC.api('GET', '/api/entries');
+    state = { entries: r.entries };
+  };
+  EC.setUser = async function (u) { EC.user = u; state = { entries: [] }; if (u) await EC.loadEntries(); };
+
+  function sync(promise) {
+    promise.catch(e => {
+      if (e.status === 401) { EC.toast('หมดเวลาการเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่'); EC.user = null; location.hash = '#/login'; }
+      else EC.toast('บันทึกไปยังเซิร์ฟเวอร์ไม่สำเร็จ: ' + EC.esc(e.message), 'err');
+    });
+  }
+
   EC.store = {
     all: () => state.entries.slice().sort((a, b) => b.at - a.at),
     byWeek: (n) => state.entries.filter(e => e.week === n),
     find: (week, kind) => state.entries.filter(e => e.week === week && e.kind === kind),
-    add(entry) {
-      entry.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      entry.at = Date.now();
-      state.entries.push(entry); persist(); return entry;
-    },
     upsert(entry) { // one entry per (week, kind, session)
+      entry.at = Date.now();
       const i = state.entries.findIndex(e => e.week === entry.week && e.kind === entry.kind && (e.session || 0) === (entry.session || 0));
-      if (i >= 0) { entry.id = state.entries[i].id; entry.at = Date.now(); state.entries[i] = entry; persist(); return entry; }
-      return this.add(entry);
+      if (i >= 0) { entry.id = state.entries[i].id; state.entries[i] = entry; }
+      else { entry.id = 'tmp' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); state.entries.push(entry); }
+      if (EC.mode === 'server') {
+        sync(EC.api('PUT', '/api/entries', { week: entry.week, kind: entry.kind, session: entry.session || 0, title: entry.title, data: entry.data })
+          .then(r => { entry.id = r.entry.id; }));
+      } else persist();
+      return entry;
     },
-    remove(id) { state.entries = state.entries.filter(e => e.id !== id); persist(); },
-    clear() { state.entries = []; persist(); },
+    remove(id) {
+      state.entries = state.entries.filter(e => e.id !== id);
+      if (EC.mode === 'server') sync(EC.api('DELETE', '/api/entries/' + encodeURIComponent(id), {})); else persist();
+    },
+    clear() {
+      state.entries = [];
+      if (EC.mode === 'server') sync(EC.api('DELETE', '/api/entries', {})); else persist();
+    },
     raw: () => state
   };
 

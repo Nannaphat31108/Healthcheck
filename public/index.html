@@ -25,10 +25,12 @@
       <a href="#/program" data-nav="program">โปรแกรม</a>
       <a href="#/journal" data-nav="journal">บันทึกของฉัน</a>
       <a href="#/library" data-nav="library">คลังความรู้</a>
+      <a href="#/admin" data-nav="admin" id="adminNav" hidden>แอดมิน</a>
     </nav>
     <div class="top-icons">
       <button class="icon-btn" type="button" aria-label="การแจ้งเตือน" data-icon="bell" id="bellBtn"></button>
-      <button class="icon-btn" type="button" aria-label="โปรไฟล์" data-icon="user"></button>
+      <button class="user-btn" type="button" aria-label="เมนูผู้ใช้" id="userBtn"><span data-icon="user"></span><span id="userName"></span></button>
+      <div class="user-menu" id="userMenu" hidden></div>
     </div>
   </header>
 
@@ -37,7 +39,7 @@
   <footer class="note">
     หมายเหตุ: เว็บไซต์นี้เป็นต้นแบบ (Prototype) สำหรับประกอบการประเมินความเหมาะสมของกิจกรรมและรูปแบบการใช้งาน
     ข้อความ สถานการณ์ ตัวเลือก และองค์ประกอบบางส่วนอาจปรับปรุงตามข้อเสนอแนะของผู้เชี่ยวชาญก่อนนำไปพัฒนาเป็นระบบใช้งานจริง
-    · ข้อมูลที่บันทึกจะเก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น
+    
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
