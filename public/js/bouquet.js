@@ -38,17 +38,36 @@
         <span class="fc-name">${EC.EMO[f.id]}</span>
         <span class="fc-ex">${f.ex}</span>
       </button>`).join('');
-    const trig = EC.TRIGGERS.map(t => `<button type="button" class="tchip" aria-pressed="false">${t}</button>`).join('');
+    const chip = t => `<button type="button" class="tchip" aria-pressed="false">${t}</button>`;
+    const trig = `<div class="trig-group pos"><b>${EC.icon('sparkle')} สิ่งที่ทำให้รู้สึกดี</b><div class="tchips">${EC.TRIGGERS_POS.map(chip).join('')}</div></div>
+      <div class="trig-group neg"><b>${EC.icon('bolt')} สิ่งที่ทำให้รู้สึกหนักใจ</b><div class="tchips">${EC.TRIGGERS_NEG.map(chip).join('')}</div></div>
+      <div class="trig-group own"><b>${EC.icon('pencil')} สิ่งกระตุ้นอื่น ๆ ของฉัน</b><div class="tchips" id="bqOwn"></div></div>`;
 
     const html = `${EC.actHeader(w, 1, 'ช่อดอกไม้ความรู้สึก',
       'กิจกรรมนี้ช่วยให้ครูได้สำรวจความรู้สึกของตนเองขณะสอนเด็กที่มีภาวะออทิซึมสเปกตรัม (Autism Spectrum Disorder)',
       `<div class="hero-flowers">${['sunflower', 'hydrangea', 'bluebell'].map((f, i) => `<span style="--d:${i * .25}s">${EC.flowerIcon(f, 58)}</span>`).join('')}</div>`)}
-      ${EC.howTo('เลือกดอกไม้ที่ตรงกับความรู้สึกของคุณขณะสอนเด็กที่มีภาวะออทิซึมสเปกตรัม แล้วดูดอกไม้เด้งขึ้นมาเป็น “ช่อดอกไม้ความรู้สึก” ของคุณในวันนี้')}
       <div class="bouquet-grid">
-        <section class="panel">
-          <h3>${EC.icon('flower')} เลือกดอกไม้ความรู้สึกของคุณ</h3>
-          <div class="flower-grid">${cards}</div>
-        </section>
+        <div class="stepper" id="bqSteps">
+          ${EC.stepTrack(['เลือกดอกไม้ความรู้สึก', 'สิ่งกระตุ้นอารมณ์', 'สะท้อนช่อดอกไม้'])}
+          <section class="step-card" data-step="0">
+            <h2 class="step-h">ขณะสอนเด็กออทิสติก คุณรู้สึกอย่างไรบ้าง?</h2>
+            <p class="step-sub">แตะดอกไม้ที่ตรงกับความรู้สึก ดอกไม้จะเด้งขึ้นมาในช่อของคุณ (เลือกได้หลายดอก)</p>
+            <div class="flower-grid">${cards}</div>
+          </section>
+          <section class="step-card" data-step="1">
+            <h2 class="step-h">อะไรที่ทำให้เกิดความรู้สึกเหล่านั้น?</h2>
+            <p class="step-sub">สิ่งกระตุ้นมีได้ทั้งเรื่องที่ทำให้รู้สึกดีและรู้สึกหนักใจ — แตะเลือกได้หลายข้อ หรือเพิ่มของคุณเอง</p>
+            <div id="bqTrig">${trig}</div>
+            <form class="add-trig" id="bqAdd"><input type="text" maxlength="60" placeholder="เพิ่มสิ่งกระตุ้นอื่น ๆ ของคุณ..." aria-label="เพิ่มสิ่งกระตุ้น"><button class="btn sm ghost" type="submit">${EC.icon('plus')} เพิ่ม</button></form>
+          </section>
+          <section class="step-card" data-step="2">
+            <h2 class="step-h">ช่อดอกไม้นี้บอกอะไรเกี่ยวกับตัวคุณ?</h2>
+            <p class="step-sub">ลองเชื่อมโยงว่า สิ่งกระตุ้นใดทำให้เกิดดอกไม้ (ความรู้สึก) ดอกไหนในช่อ</p>
+            <div class="bq-recap" id="bqRecap"></div>
+            <textarea class="ta big" id="bqNote" rows="4" maxlength="500" placeholder="เช่น เมื่อเด็กไม่ตอบสนอง ฉันรู้สึกกังวล แต่เมื่อเด็กทำกิจกรรมสำเร็จ ฉันรู้สึกภูมิใจ..."></textarea>
+          </section>
+          ${EC.stepNav('บันทึกและไปเขียนสะท้อนตนเอง')}
+        </div>
         <section class="panel bq-panel">
           <h3>${EC.icon('bouquet')} ช่อดอกไม้ความรู้สึกของฉันวันนี้</h3>
           <div class="bq-stage" id="bqStage">
@@ -63,18 +82,11 @@
             <div class="petal-layer" id="bqPetals"></div>
           </div>
           <div class="sel-row">${EC.icon('heart')} <b>อารมณ์ที่เลือก</b><div class="chips" id="bqChips"><span class="muted">—</span></div></div>
-          <div class="trig-box">
-            <div class="trig-head">${EC.icon('bolt')} <b>สิ่งกระตุ้นที่เกี่ยวข้อง</b> <small>(แตะเพื่อเลือก)</small></div>
-            <div class="tchips" id="bqTrig">${trig}</div>
-            <form class="add-trig" id="bqAdd"><input type="text" maxlength="40" placeholder="เพิ่มสิ่งกระตุ้นอื่น ๆ..." aria-label="เพิ่มสิ่งกระตุ้น"><button class="btn sm ghost" type="submit">${EC.icon('plus')}</button></form>
-          </div>
         </section>
       </div>
       <div class="meadow" id="bqMeadow" title="แตะทุ่งหญ้าเพื่อปลูกดอกไม้">
         <svg viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60C150 20 300 30 450 50s300 10 450-14 220 6 300 20V90H0z" fill="#e3edc6"/><path d="M0 72C200 46 380 60 600 66s420-20 600 0V90H0z" fill="#d3e2ad"/></svg>
-      </div>
-      <div class="next-bar">${EC.icon('calendar')}<span>เมื่อเลือกดอกไม้เสร็จ ระบบจะพาไปบันทึกสะท้อนตนเอง</span>
-        <button type="button" class="btn rose" id="bqSave">บันทึกและไปต่อ ${EC.icon('arrow')}</button></div>`;
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
 
@@ -178,7 +190,7 @@
       const inp = EC.$('input', e.target), v = inp.value.trim(); if (!v) return;
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tchip'; b.textContent = v; b.setAttribute('aria-pressed', 'true');
-      trigBox.appendChild(b); inp.value = '';
+      EC.$('#bqOwn').appendChild(b); inp.value = '';
     });
 
     // meadow: flowers pop up and bounce, on a gentle loop + on tap
@@ -206,18 +218,33 @@
     // restore previous
     const prev = EC.store.find(2, 'a1')[0];
     if (prev?.data?.ids) prev.data.ids.forEach((id, i) => setTimeout(() => EC.$(`.flower-card[data-id="${id}"]`)?.click(), 300 + i * 260));
-    if (prev?.data?.triggers) EC.$$('.tchip', trigBox).forEach(b => { if (prev.data.triggers.includes(b.textContent)) b.setAttribute('aria-pressed', 'true'); });
+    if (prev?.data?.triggers) {
+      const known = new Set(EC.TRIGGERS);
+      prev.data.triggers.filter(t => !known.has(t)).forEach(t => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'tchip'; b.textContent = t; EC.$('#bqOwn').appendChild(b);
+      });
+      EC.$$('.tchip', trigBox).forEach(b => { if (prev.data.triggers.includes(b.textContent)) b.setAttribute('aria-pressed', 'true'); });
+    }
+    if (prev?.data?.note) EC.$('#bqNote').value = prev.data.note;
 
-    EC.$('#bqSave').addEventListener('click', () => {
-      if (!chosen.size) { EC.toast('เลือกดอกไม้อย่างน้อย 1 ดอกก่อนนะคะ 🌸'); return; }
-      const ids = [...chosen.keys()];
-      const triggers = EC.$$('.tchip[aria-pressed="true"]', trigBox).map(b => b.textContent);
-      EC.store.upsert({ week: 2, kind: 'a1', title: 'ช่อดอกไม้ความรู้สึก', data: { ids, emotions: ids.map(i => EC.EMO[i]), triggers } });
-      const r = stage.getBoundingClientRect();
-      EC.burst(r.left + r.width / 2, r.top + r.height * .35, { count: 30, shapes: ['heart', 'star'], dist: 160, gravity: 40, min: 10, max: 18, duration: 1300 });
-      rainPetals('#f8b7c4', 16);
-      EC.toast('บันทึกช่อดอกไม้ความรู้สึกแล้ว ✓ กำลังพาไปกิจกรรมถัดไป', 'ok');
-      setTimeout(() => { location.hash = '#/week/2/a2'; }, 1400);
+    const picked = () => EC.$$('.tchip[aria-pressed="true"]', trigBox).map(b => b.textContent);
+    EC.stepper(EC.$('#bqSteps'), {
+      steps: [
+        { title: 'เลือกดอกไม้ความรู้สึก', hint: 'แตะเลือก <b>ดอกไม้</b> ที่ตรงกับความรู้สึกของคุณ แล้วดูดอกไม้เด้งขึ้นมาในช่อ', validate: () => EC.need.pick(chosen.size, 'กรุณาเลือกดอกไม้อย่างน้อย 1 ดอก 🌸') },
+        { title: 'สิ่งกระตุ้นอารมณ์', hint: 'เลือก <b>สิ่งกระตุ้น</b> ที่ทำให้เกิดความรู้สึกเหล่านั้น — มีทั้งด้านดีและด้านที่หนักใจ', validate: () => EC.need.pick(picked().length, 'กรุณาเลือกหรือเพิ่มสิ่งกระตุ้นอย่างน้อย 1 ข้อ') },
+        { title: 'สะท้อนช่อดอกไม้', hint: '<b>เชื่อมโยง</b> สิ่งกระตุ้นกับความรู้สึกในช่อดอกไม้ของคุณ',
+          enter: () => { EC.$('#bqRecap').innerHTML = `<p><b>ดอกไม้:</b> ${[...chosen.keys()].map(id => `<span class="chip c-${id}">${EC.EMO[id]}</span>`).join(' ')}</p><p><b>สิ่งกระตุ้น:</b> ${picked().map(t => `<span class="chip">${EC.esc(t)}</span>`).join(' ')}</p>`; },
+          validate: () => EC.need.text(EC.$('#bqNote')) }
+      ],
+      onFinish() {
+        const ids = [...chosen.keys()];
+        EC.store.upsert({ week: 2, kind: 'a1', title: 'ช่อดอกไม้ความรู้สึก', data: { ids, emotions: ids.map(i => EC.EMO[i]), triggers: picked(), note: EC.$('#bqNote').value.trim() } });
+        const r = stage.getBoundingClientRect();
+        EC.burst(r.left + r.width / 2, r.top + r.height * .35, { count: 30, shapes: ['heart', 'star'], dist: 160, gravity: 40, min: 10, max: 18, duration: 1300 });
+        rainPetals('#f8b7c4', 16);
+        EC.toast('บันทึกช่อดอกไม้ความรู้สึกแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(1400);
+      }
     });
   };
 })(window.EC);

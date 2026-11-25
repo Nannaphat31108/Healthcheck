@@ -26,25 +26,46 @@
   };
 
   function progress(n) {
-    const a1 = EC.store.find(n, 'a1').length > 0;
-    const s = EC.store.find(n, 'a2').map(e => e.session);
-    return { a1, r1: s.includes(1), r2: s.includes(2), pct: Math.round(((a1 ? 1 : 0) + (s.includes(1) ? 1 : 0) + (s.includes(2) ? 1 : 0)) / 3 * 100) };
+    const d = [0, 1, 2, 3].map(i => EC.stepDone(n, i));
+    return { steps: d, a1: d[0], r1: d[1], r2: d[2], sum: d[3], pct: Math.round(d.filter(Boolean).length / 4 * 100) };
   }
 
-  function actCard(w, i) {
-    const a = w.acts[i];
-    const done = i === 0 ? progress(w.n).a1 : progress(w.n).r1;
-    return `<a class="act-card" href="#/week/${w.n}/a${i + 1}">
-      <span class="tag">กิจกรรมที่ ${i + 1}${done ? ` · ${EC.icon('tick')} ทำแล้ว` : ''}</span>
-      <h3>${a.title}</h3><p>${a.desc}</p>
-      <div class="act-pic">${EC.mini(a.art)}</div>
-      <span class="btn sm soft">เริ่มกิจกรรม ${EC.icon('arrow')}</span>
-    </a>`;
+  // status of a week: done / current / locked
+  function weekState(n) {
+    if (EC.weekDone(n)) return 'done';
+    return EC.isOpen(n, 0) ? 'current' : 'locked';
+  }
+
+  // the single "what to do next" card
+  function nextCard() {
+    const nx = EC.nextStep();
+    if (!nx) return `<section class="next-card done">${EC.art.stars()}<div><span class="tag">ยินดีด้วย</span><h3>คุณทำครบทั้ง 8 สัปดาห์แล้ว 🌙</h3><p>ย้อนดูบันทึกการเดินทางของคุณได้ที่ “บันทึกของฉัน”</p>
+      <a class="btn cta" href="#/journal">ดูบันทึกของฉัน ${EC.icon('arrow')}</a></div></section>`;
+    const w = EC.WEEKS[nx.w - 1];
+    const art = nx.i === 0 ? EC.mini(w.acts[0].art) : nx.i === 3 ? `<div class="mini-art">${EC.art.heartHands()}</div>` : `<div class="mini-art">${EC.art.journal()}</div>`;
+    const desc = nx.i === 0 ? w.acts[0].desc : nx.i === 3 ? 'บันทึกความรู้สึกและสิ่งที่ได้เรียนรู้หลังจบสัปดาห์นี้ เพื่อปลดล็อกสัปดาห์ถัดไป' : w.acts[1].desc;
+    return `<section class="next-card theme-${w.theme}">
+      <div class="nc-text"><span class="tag">ขั้นตอนถัดไปของคุณ · สัปดาห์ที่ ${w.n}</span>
+        <h3>${EC.stepLabel(w.n, nx.i)}</h3><p>${desc}</p>
+        <a class="btn cta" href="${EC.stepHref(w.n, nx.i)}">${nx.w === 1 && nx.i === 0 ? 'เริ่มโปรแกรม' : 'ทำต่อ'} ${EC.icon('arrow')}</a></div>
+      <div class="nc-art">${art}</div>
+    </section>`;
+  }
+
+  // vertical path of the 4 steps of one week
+  function weekPath(w) {
+    return `<ol class="wpath">${[0, 1, 2, 3].map(i => {
+      const done = EC.stepDone(w.n, i), open = EC.isOpen(w.n, i);
+      const st = done ? 'done' : open ? 'current' : 'locked';
+      const icon = done ? 'tick' : open ? (i === 0 ? w.acts[0].icon : i === 3 ? 'heart' : 'pencil') : 'lock';
+      const inner = `<span class="wp-ic">${EC.icon(icon)}</span><span class="wp-t"><small>ขั้นตอนที่ ${i + 1}</small><b>${EC.stepLabel(w.n, i)}</b>
+        <em>${done ? 'ทำแล้ว' : open ? 'ทำขั้นตอนนี้ได้เลย' : 'ปลดล็อกเมื่อทำขั้นตอนก่อนหน้าเสร็จ'}</em></span>`;
+      return `<li class="${st}">${open ? `<a href="${EC.stepHref(w.n, i)}">${inner}${!done ? `<span class="btn sm green">เริ่ม ${EC.icon('arrow')}</span>` : ''}</a>` : `<div aria-disabled="true">${inner}</div>`}</li>`;
+    }).join('')}</ol>`;
   }
 
   /* ---------- pages ---------- */
   function home() {
-    const w1 = EC.WEEKS[0];
     return `<div class="home">
       <section class="hero">
         <div class="hero-l">${EC.art.teacher()}</div>
@@ -52,49 +73,49 @@
           <span class="hero-kicker">โปรแกรมออนไลน์ 8 สัปดาห์</span>
           <h1 class="hero-title"><span>ดูแลอารมณ์ครู</span></h1>
           <p>เสริมทักษะการกำกับอารมณ์<br>เพื่อการสอนเด็กออทิสติกอย่างมีพลัง</p>
-          <a class="btn cta" href="#/week/1">เริ่มโปรแกรม ${EC.icon('arrow')}</a>
         </div>
         <div class="hero-r">${EC.art.books()}</div>
       </section>
+      ${nextCard()}
+      <h2 class="sec-title"><span class="dash l"></span>เส้นทาง 8 สัปดาห์ของฉัน<span class="dash r"></span></h2>
+      <p class="sec-sub">ทำไปทีละขั้นตอน — สัปดาห์ถัดไปจะปลดล็อกเมื่อทำสัปดาห์ก่อนหน้าครบ</p>
+      <div class="week-cards">${EC.WEEKS.map(w => {
+        const st = weekState(w.n), p = progress(w.n);
+        const body = `<b>สัปดาห์ที่ ${w.n}</b><span>${w.title}</span>
+          <i class="wk-ic">${EC.icon(st === 'locked' ? 'lock' : st === 'done' ? 'tick' : w.icon)}</i>
+          <span class="wk-bar"><span style="width:${p.pct}%"></span></span>`;
+        return st === 'locked' ? `<div class="wk theme-${w.theme} locked" style="--i:${w.n}" aria-disabled="true" title="ยังล็อกอยู่">${body}</div>`
+          : `<a class="wk theme-${w.theme} ${st}" href="#/week/${w.n}" style="--i:${w.n}">${body}</a>`;
+      }).join('')}</div>
       <section class="about">
         <div class="about-art">${EC.art.heartHands()}</div>
-        <div><h2>เกี่ยวกับโปรแกรม</h2><p>โปรแกรมออนไลน์ 8 สัปดาห์ เพื่อดูแลอารมณ์ เข้าใจตนเอง และเพิ่มพลังในการสอน — ใช้แนวคิดการกำกับอารมณ์ของ Thompson (1994) ร่วมกับการฝึกสติ (Bishop et al., 2004) และการสะท้อนตนเอง (Grant et al., 2002) สัปดาห์ละ 1 กิจกรรมหลัก และบันทึกสะท้อนตนเองสัปดาห์ละ 2 ครั้ง รวม 16 ครั้ง</p>
+        <div><h2>เกี่ยวกับโปรแกรม</h2><p>โปรแกรมออนไลน์ 8 สัปดาห์ เพื่อดูแลอารมณ์ เข้าใจตนเอง และเพิ่มพลังในการสอน — ใช้แนวคิดการกำกับอารมณ์ของ Thompson (1994) ร่วมกับการฝึกสติ (Bishop et al., 2004) และการสะท้อนตนเอง (Grant et al., 2002) แต่ละสัปดาห์มีกิจกรรมหลัก 1 กิจกรรม เขียนสะท้อนตนเอง 2 ครั้ง และบันทึกความรู้สึกท้ายสัปดาห์</p>
           <div class="mee">${[['eye', 'Monitoring', 'ติดตามและตระหนักรู้อารมณ์ของตนเอง'], ['scale', 'Evaluating', 'ประเมินอารมณ์และพิจารณาสถานการณ์'], ['gear', 'Modifying', 'ปรับเปลี่ยนการตอบสนองอย่างเหมาะสม']].map(([i, t, d]) => `<div>${EC.icon(i)}<b>${t}</b><small>${d}</small></div>`).join('')}</div>
         </div>
       </section>
-      <h2 class="sec-title"><span class="dash l"></span>ภาพรวมโปรแกรม 8 สัปดาห์<span class="dash r"></span></h2>
-      <div class="week-cards">${EC.WEEKS.map(w => { const p = progress(w.n); return `
-        <a class="wk theme-${w.theme}" href="#/week/${w.n}" style="--i:${w.n}">
-          <b>สัปดาห์ที่ ${w.n}</b><span>${w.title}</span>
-          <i class="wk-ic">${EC.icon(w.icon)}</i>
-          <span class="wk-bar"><span style="width:${p.pct}%"></span></span>
-        </a>`; }).join('')}</div>
-      <h2 class="sec-title"><span class="dash l"></span>สัปดาห์ที่ 1<span class="dash r"></span></h2>
-      <p class="sec-sub">${w1.title} (${w1.phase})</p>
-      <div class="act-cards">${actCard(w1, 0)}${actCard(w1, 1)}</div>
-      <h2 class="sec-title"><span class="dash l"></span>ไฮไลต์ สัปดาห์ที่ 2<span class="dash r"></span></h2>
-      <div class="act-cards">${actCard(EC.WEEKS[1], 0)}${actCard(EC.WEEKS[1], 1)}</div>
     </div>`;
   }
 
   function program() {
     return `<div class="program">
       <h1 class="page-title">โปรแกรม 8 สัปดาห์</h1>
-      <p class="page-sub">ทำกิจกรรมตามลำดับการเรียนรู้สัปดาห์ละ 1 กิจกรรม และฝึกปฏิบัติร่วมกับการสะท้อนตนเองผ่านระบบบนฐานเว็บ สัปดาห์ละ 2 ครั้ง</p>
-      <div class="phase-line">${[['Monitoring', '1–2'], ['Evaluating', '3–5'], ['Modifying', '5–6'], ['บูรณาการ', '7–8']].map(([t, r]) => `<span><b>${t}</b><small>สัปดาห์ ${r}</small></span>`).join(EC.icon('arrow'))}</div>
-      <div class="prog-list">${EC.WEEKS.map(w => { const p = progress(w.n); return `
-        <article class="prog-item theme-${w.theme}">
-          <div class="pi-num">${w.n}</div>
-          <div class="pi-body"><h3>${w.title} <small>(${w.phase})</small></h3>
-            <ul>${w.acts.map((a, i) => `<li>${EC.icon(a.icon)} <a href="#/week/${w.n}/a${i + 1}">กิจกรรมที่ ${i + 1} ${a.title}</a> ${(i ? p.r1 : p.a1) ? `<span class="okmark">${EC.icon('tick')}</span>` : ''}</li>`).join('')}</ul>
+      <p class="page-sub">ทำตามลำดับทีละขั้นตอน: กิจกรรมที่ 1 → เขียนสะท้อนตนเอง 2 ครั้ง → บันทึกความรู้สึกท้ายสัปดาห์ แล้วสัปดาห์ถัดไปจะปลดล็อก</p>
+      ${nextCard()}
+      <div class="prog-list">${EC.WEEKS.map(w => {
+        const p = progress(w.n), st = weekState(w.n);
+        return `<article class="prog-item theme-${w.theme} ${st}">
+          <div class="pi-num">${st === 'locked' ? EC.icon('lock') : w.n}</div>
+          <div class="pi-body"><h3>สัปดาห์ที่ ${w.n} · ${w.title} <small>(${w.phase})</small></h3>
+            <div class="pi-steps">${[0, 1, 2, 3].map(i => `<span class="${p.steps[i] ? 'on' : ''}">${p.steps[i] ? EC.icon('tick') : ''}${EC.stepShort[i]}</span>`).join('')}</div>
           </div>
-          <div class="pi-prog"><span class="ring" style="--p:${p.pct}">${p.pct}%</span><a class="btn sm soft" href="#/week/${w.n}">เข้าสู่สัปดาห์ ${EC.icon('arrow')}</a></div>
-        </article>`; }).join('')}</div>
+          <div class="pi-prog"><span class="ring" style="--p:${p.pct}">${p.pct}%</span>
+            ${st === 'locked' ? `<span class="lock-note">${EC.icon('lock')} ยังล็อกอยู่</span>` : `<a class="btn sm soft" href="#/week/${w.n}">เข้าสู่สัปดาห์ ${EC.icon('arrow')}</a>`}</div>
+        </article>`;
+      }).join('')}</div>
     </div>`;
   }
 
   function weekOverview(w) {
-    const p = progress(w.n);
     const inner = `
       <section class="wk-hero">
         <div class="wk-hero-art">${(EC.art[w.art] || EC.art.teacher)()}</div>
@@ -102,13 +123,11 @@
         <div class="wk-hero-art r">${w.n % 2 ? EC.art.books() : EC.art.classroom()}</div>
       </section>
       <p class="wk-desc">${w.desc}</p>
+      <section class="panel mt"><h3>${EC.icon('flag')} ขั้นตอนของสัปดาห์นี้ <small>ทำตามลำดับ ขั้นตอนถัดไปจะปลดล็อกเมื่อทำขั้นตอนก่อนหน้าเสร็จ</small></h3>${weekPath(w)}</section>
       <div class="two">
         <section class="panel"><h3>${EC.icon('target')} เป้าหมายของสัปดาห์นี้</h3><ul class="ticks">${w.goals.map(g => `<li>${g}</li>`).join('')}</ul></section>
         <section class="panel"><h3>${EC.icon('bulb')} สิ่งที่จะได้ฝึก</h3><div class="skills">${w.skills.map(([i, t]) => `<div>${EC.icon(i)}<span>${t}</span></div>`).join('')}</div></section>
-      </div>
-      <div class="act-cards">${actCard(w, 0)}${actCard(w, 1)}</div>
-      <div class="next-bar">${EC.icon('calendar')}<b>บันทึกการสะท้อน</b><span>มีการบันทึกการสะท้อน <b class="pill">2 ครั้งต่อสัปดาห์</b></span>
-        <span class="dots">${['กิจกรรม 1', 'ครั้งที่ 1', 'ครั้งที่ 2'].map((t, i) => `<i class="${[p.a1, p.r1, p.r2][i] ? 'on' : ''}" title="${t}"></i>`).join('')}</span></div>`;
+      </div>`;
     return EC.weekShell(w, 'overview', inner);
   }
 
@@ -127,7 +146,7 @@
         return (p.sel?.length || p.text) ? `<p><b>${EC.esc(label)}:</b> ${chips(p.sel)} ${EC.esc(p.text || '')}</p>` : '';
       }).join('') || '<p class="muted">—</p>';
     }
-    if (e.kind === 'summary') return para('', d.text);
+    if (e.kind === 'summary') return (d.mood ? `<p><b>ความรู้สึกท้ายสัปดาห์:</b> ${chips([d.mood])}</p>` : '') + para('สิ่งที่ได้เรียนรู้:', d.text) + para('ดูแลตัวเองสัปดาห์หน้า:', d.care);
     let h = '';
     if (d.img) h += `<img class="thumb" src="${d.img}" alt="ภาพจากกิจกรรม ${EC.esc(e.title)}">`;
     if (d.emotions?.length) h += `<p><b>อารมณ์:</b> ${chips(d.emotions)}</p>`;
@@ -144,26 +163,69 @@
     h += para('บันทึก:', d.note);
     return h || '<p class="muted">—</p>';
   }
+  EC.summarize = summarize;
 
+  /* step 4: end-of-week feelings record (required, unlocks next week) */
+  const MOODS = ['happy', 'content', 'calm', 'hopeful', 'proud', 'tired', 'worried', 'stressed', 'confused', 'sad'];
   function weekSummary(w) {
-    const p = progress(w.n);
+    const prev = EC.store.find(w.n, 'summary')[0]?.data || {};
     const entries = EC.store.byWeek(w.n).filter(e => e.kind !== 'summary').sort((a, b) => a.kind.localeCompare(b.kind) || (a.session || 0) - (b.session || 0));
-    const note = EC.store.find(w.n, 'summary')[0]?.data?.text || '';
-    const next = EC.WEEKS[w.n];
     const inner = `
-      <header class="act-head"><div><span class="tag">สัปดาห์ที่ ${w.n}</span><h1 class="act-title">สรุป &amp; บันทึกการเรียนรู้</h1><p class="act-sub">${w.title} (${w.phase})</p></div><div class="act-art">${EC.art.journal()}</div></header>
-      <div class="checklist">${[['กิจกรรมที่ 1: ' + w.acts[0].title, p.a1, 'a1'], ['สะท้อนตนเอง ครั้งที่ 1', p.r1, 'a2/1'], ['สะท้อนตนเอง ครั้งที่ 2', p.r2, 'a2/2']].map(([t, ok, h]) => `
-        <a href="#/week/${w.n}/${h}" class="ck ${ok ? 'on' : ''}"><span class="ckbox">${ok ? EC.icon('tick') : ''}</span>${t}</a>`).join('')}</div>
-      <section class="panel"><h3>${EC.icon('book')} สิ่งที่บันทึกไว้ในสัปดาห์นี้</h3>
-        ${entries.length ? entries.map(e => `<article class="entry"><h4>${EC.esc(e.title)} <small>${EC.dateTH(e.at)}</small></h4>${summarize(e)}</article>`).join('') : '<p class="muted">ยังไม่มีบันทึกในสัปดาห์นี้ — เริ่มจากกิจกรรมที่ 1 ได้เลย</p>'}
-      </section>
-      <section class="panel mt"><h3>${EC.icon('sprout')} สิ่งที่ฉันได้เรียนรู้ในสัปดาห์นี้</h3>
-        <textarea class="ta" id="sumNote" rows="4" maxlength="1000" placeholder="สรุปสั้น ๆ ว่าสัปดาห์นี้ฉันได้เรียนรู้อะไรเกี่ยวกับตนเองและการสอน...">${EC.esc(note)}</textarea>
-        <div class="row-end"><button type="button" class="btn brown" id="sumSave">${EC.icon('save')} บันทึก</button>
-        ${next ? `<a class="btn soft" href="#/week/${next.n}">ไปสัปดาห์ที่ ${next.n} ${EC.icon('arrow')}</a>` : `<a class="btn soft" href="#/journal">ดูบันทึกทั้งหมด ${EC.icon('arrow')}</a>`}</div>
-      </section>`;
+      ${EC.actHeader(w, 'ขั้นตอนสุดท้าย', 'บันทึกความรู้สึกท้ายสัปดาห์', `หลังจบกิจกรรมของสัปดาห์ที่ ${w.n} ลองหยุดสักครู่ แล้วบันทึกความรู้สึกและสิ่งที่ได้เรียนรู้ของคุณ`, EC.art.heartHands())}
+      <div class="stepper" id="sumSt">
+        ${EC.stepTrack(['ตอนนี้ฉันรู้สึกอย่างไร', 'สิ่งที่ฉันได้เรียนรู้', 'ดูแลตัวเองสัปดาห์หน้า'])}
+        <section class="step-card" data-step="0">
+          <h2 class="step-h">ตอนนี้ หลังจบสัปดาห์ที่ ${w.n} ฉันรู้สึกอย่างไร?</h2>
+          <div class="face-grid big" id="sumMood">${MOODS.map(m => `<button type="button" class="face-opt" aria-pressed="${prev.moodId === m}" data-v="${m}"><span class="sq"></span>${EC.face(m, 54)}<b>${EC.EMO[m]}</b></button>`).join('')}</div>
+        </section>
+        <section class="step-card" data-step="1">
+          <h2 class="step-h">สัปดาห์นี้ ฉันได้เรียนรู้อะไรเกี่ยวกับตนเองและการสอน?</h2>
+          <textarea class="ta big" id="sumNote" rows="5" maxlength="1000" placeholder="เขียนสั้น ๆ 2–3 ประโยค...">${EC.esc(prev.text || '')}</textarea>
+          ${entries.length ? `<details class="recap"><summary>${EC.icon('book')} ดูสิ่งที่ฉันบันทึกไว้ในสัปดาห์นี้</summary>${entries.map(e => `<article class="entry"><h4>${EC.esc(e.title)}</h4>${summarize(e)}</article>`).join('')}</details>` : ''}
+        </section>
+        <section class="step-card" data-step="2">
+          <h2 class="step-h">สัปดาห์หน้า ฉันจะดูแลอารมณ์ของตัวเองอย่างไร?</h2>
+          <textarea class="ta big" id="sumCare" rows="4" maxlength="500" placeholder="เช่น หายใจลึก ๆ ก่อนเข้าห้องเรียน, พักดื่มน้ำเมื่อรู้สึกตึงเครียด...">${EC.esc(prev.care || '')}</textarea>
+        </section>
+        ${EC.stepNav(w.n < 8 ? `บันทึกและปลดล็อกสัปดาห์ที่ ${w.n + 1}` : 'บันทึกและจบโปรแกรม')}
+      </div>`;
     return EC.weekShell(w, 'summary', inner);
   }
+  function mountSummary(w) {
+    const mood = EC.$('#sumMood');
+    mood.addEventListener('click', e => {
+      const b = e.target.closest('.face-opt'); if (!b) return;
+      EC.$$('.face-opt', mood).forEach(x => x.setAttribute('aria-pressed', x === b));
+      b.classList.remove('boing'); void b.offsetWidth; b.classList.add('boing');
+    });
+    EC.stepper(EC.$('#sumSt'), {
+      steps: [
+        { title: 'ตอนนี้ฉันรู้สึกอย่างไร', hint: 'แตะเลือก <b>1 ความรู้สึก</b> ที่ตรงกับใจคุณที่สุดในตอนนี้', validate: () => EC.need.pick(EC.$$('[aria-pressed="true"]', mood).length, 'กรุณาเลือกความรู้สึก 1 ข้อ') },
+        { title: 'สิ่งที่ฉันได้เรียนรู้', hint: 'เขียน <b>สิ่งที่ได้เรียนรู้</b> จากสัปดาห์นี้ (ย้อนดูบันทึกของสัปดาห์นี้ได้ด้านล่าง)', validate: () => EC.need.text(EC.$('#sumNote')) },
+        { title: 'ดูแลตัวเองสัปดาห์หน้า', hint: 'ตั้งใจ <b>1 วิธี</b> ที่จะใช้ดูแลอารมณ์ของตนเองในสัปดาห์หน้า', validate: () => EC.need.text(EC.$('#sumCare')) }
+      ],
+      onFinish() {
+        const m = EC.$('[aria-pressed="true"]', mood).dataset.v;
+        EC.store.upsert({ week: w.n, kind: 'summary', title: 'บันทึกความรู้สึกท้ายสัปดาห์', data: { moodId: m, mood: EC.EMO[m], text: EC.$('#sumNote').value.trim(), care: EC.$('#sumCare').value.trim() } });
+        if (w.n === 8) { EC.celebrate(); return; }
+        EC.unlocked(w.n + 1);
+      }
+    });
+  }
+
+  EC.unlocked = function (n) {
+    const nw = EC.WEEKS[n - 1];
+    const ov = document.createElement('div');
+    ov.className = 'celebrate';
+    ov.innerHTML = `<div class="cel-card theme-${nw.theme}"><div class="unlock-ic">${EC.icon('lock')}</div>
+      <h2>ปลดล็อกสัปดาห์ที่ ${n} แล้ว!</h2><p><b>${nw.title}</b><br>(${nw.phase})</p>
+      <a class="btn cta" href="#/week/${n}">ไปสัปดาห์ที่ ${n} ${EC.icon('arrow')}</a></div>`;
+    document.body.appendChild(ov);
+    EC.$('a', ov).addEventListener('click', () => ov.remove());
+    ov.addEventListener('click', e => { if (e.target === ov) { ov.remove(); location.hash = '#/week/' + n; } });
+    setTimeout(() => EC.$('.unlock-ic', ov).classList.add('open'), 350);
+    setTimeout(() => EC.burst(innerWidth / 2, innerHeight / 2 - 60, { count: 30, shapes: ['star', 'heart'], dist: 180, min: 8, max: 16, duration: 1400 }), 500);
+  };
 
   function journal() {
     const all = EC.store.all();
@@ -171,37 +233,12 @@
     return `<div class="journal-page">
       <div class="jp-head"><div><h1 class="page-title">บันทึกของฉัน</h1><p class="page-sub">${EC.mode === 'server' ? 'บันทึกของคุณเก็บไว้ในระบบอย่างปลอดภัย' : 'ทุกบันทึกเก็บไว้ในเบราว์เซอร์นี้เท่านั้น'} · ทั้งหมด ${all.length} รายการ</p></div>
         <div class="jp-actions"><button type="button" class="btn ghost sm" id="jpExport">${EC.icon('download')} ดาวน์โหลด (JSON)</button>
-        <button type="button" class="btn ghost sm" id="jpPrint">${EC.icon('clipboard')} พิมพ์</button>
-        ${all.length ? `<button type="button" class="btn ghost sm danger" id="jpClear">${EC.icon('trash')} ลบทั้งหมด</button>` : ''}</div></div>
+        <button type="button" class="btn ghost sm" id="jpPrint">${EC.icon('clipboard')} พิมพ์</button></div></div>
       ${groups.length ? groups.map(([w, es]) => `
         <section class="jp-week theme-${w.theme}"><h2><span class="pill-week">สัปดาห์ที่ ${w.n}</span> ${w.title}</h2>
-          ${es.map(e => `<article class="entry"><h4>${EC.esc(e.title)} <small>${EC.dateTH(e.at)}</small>
-            <button type="button" class="icon-btn sm" data-del="${e.id}" aria-label="ลบบันทึกนี้">${EC.icon('trash')}</button></h4>${summarize(e)}</article>`).join('')}
+          ${es.sort((a, b) => EC.STEPS.findIndex(s => s[0] === a.kind && s[1] === (a.session || 0)) - EC.STEPS.findIndex(s => s[0] === b.kind && s[1] === (b.session || 0)))
+            .map(e => `<article class="entry"><h4>${EC.esc(e.title)} <small>${EC.dateTH(e.at)}</small></h4>${summarize(e)}</article>`).join('')}
         </section>`).join('') : `<div class="empty">${EC.art.journal()}<p>ยังไม่มีบันทึก<br><a class="btn cta" href="#/week/1/a1">เริ่มกิจกรรมแรก: ส้มตำความรู้สึก ${EC.icon('arrow')}</a></p></div>`}
-    </div>`;
-  }
-
-  function library() {
-    const cards = [
-      ['eye', 'Monitoring', 'การติดตามและตระหนักรู้อารมณ์ของตนเอง', 'สังเกตว่ากำลังรู้สึกอะไร สัญญาณในร่างกายเป็นอย่างไร และอารมณ์เปลี่ยนไปเมื่อใด — ฝึกในสัปดาห์ที่ 1–2'],
-      ['scale', 'Evaluating', 'การประเมินอารมณ์และพิจารณาสถานการณ์', 'แยกสิ่งที่เห็นออกจากสิ่งที่คิด พิจารณาความต้องการของเด็กและบริบท ก่อนด่วนสรุป — ฝึกในสัปดาห์ที่ 3–5'],
-      ['gear', 'Modifying', 'การปรับเปลี่ยนการตอบสนองทางอารมณ์อย่างเหมาะสม', 'เว้นจังหวะ หายใจ ปรับน้ำเสียง หรือเลือกวิธีตอบสนองที่เหมาะกับเด็ก — ฝึกในสัปดาห์ที่ 5–8'],
-      ['sprout', 'สติ (Mindfulness)', 'Bishop et al. (2004)', 'Self-regulation of attention — การกำกับความใส่ใจไว้ที่ปัจจุบัน และ Orientation to experience — การเปิดรับประสบการณ์ด้วยความอยากรู้และยอมรับ'],
-      ['pencil', 'การสะท้อนตนเอง', 'Grant et al. (2002)', 'การทบทวนความคิด ความรู้สึก และการกระทำของตนเองอย่างเป็นระบบ เพื่อเข้าใจตนเองและนำไปสู่การเปลี่ยนแปลง']
-    ];
-    return `<div class="library">
-      <h1 class="page-title">คลังความรู้ &amp; เครื่องมือ</h1>
-      <p class="page-sub">แนวคิดหลักของโปรแกรม และเครื่องมือเล็ก ๆ สำหรับดูแลอารมณ์ระหว่างวัน</p>
-      <div class="lib-grid">${cards.map(([i, t, s, d]) => `<article class="lib-card">${EC.icon(i)}<h3>${t}</h3><b>${s}</b><p>${d}</p></article>`).join('')}</div>
-      <section class="breathe-box panel">
-        <div><h2>${EC.icon('breath')} พักหายใจ 1 นาที</h2><p>ใช้เมื่อรู้สึกว่าอารมณ์กำลังพุ่งขึ้น: หายใจเข้า 4 วินาที · กลั้น 4 วินาที · หายใจออก 6 วินาที</p>
-          <button type="button" class="btn green" id="brBtn">${EC.icon('play')} เริ่ม</button></div>
-        <div class="breathe"><div class="br-circle" id="brC"><span id="brT">พร้อม</span></div></div>
-      </section>
-      <section class="panel mt stop-card"><h2>หยุด – สังเกต – เลือก</h2>
-        <div class="flow-strip big"><span class="fs s1">${EC.icon('pause')} <b>หยุด</b><small>เว้นจังหวะ 1 ลมหายใจก่อนตอบสนอง</small></span>${EC.icon('arrow')}
-        <span class="fs s2">${EC.icon('eye')} <b>สังเกต</b><small>ตอนนี้ฉันรู้สึกอะไร ร่างกายบอกอะไร เด็กกำลังสื่อสารอะไร</small></span>${EC.icon('arrow')}
-        <span class="fs s3">${EC.icon('tick')} <b>เลือก</b><small>วิธีที่ปลอดภัย เหมาะกับเด็ก และตรงกับเป้าหมายการสอน</small></span></div></section>
     </div>`;
   }
 
@@ -262,7 +299,7 @@
     const { users } = await EC.api('GET', '/api/admin/users');
     const teachers = users.filter(u => u.role === 'teacher');
     const total = users.reduce((s, u) => s + u.entry_count, 0);
-    const finished = teachers.filter(u => { const m = doneMap(u.done); return EC.WEEKS.every(w => m[w.n]?.a1 && m[w.n]?.a21 && m[w.n]?.a22); }).length;
+    const finished = teachers.filter(u => { const m = doneMap(u.done); return EC.WEEKS.every(w => m[w.n]?.a1 && m[w.n]?.a21 && m[w.n]?.a22 && m[w.n]?.summary); }).length;
     return `<div class="admin">
       <div class="jp-head"><div><h1 class="page-title">หน้าผู้ดูแลระบบ</h1><p class="page-sub">ติดตามความก้าวหน้าและดาวน์โหลดข้อมูลของผู้เข้าร่วม</p></div>
         <div class="jp-actions"><a class="btn green sm" href="/api/admin/export.csv">${EC.icon('download')} ดาวน์โหลดทั้งหมด (CSV / Excel)</a>
@@ -278,8 +315,8 @@
           <thead><tr><th>ผู้ใช้</th><th>ความก้าวหน้า (สัปดาห์ 1–8)</th><th>บันทึก</th><th>เข้าใช้ล่าสุด</th><th></th></tr></thead>
           <tbody>${users.map(u => { const m = doneMap(u.done); return `<tr>
             <td><b>${EC.esc(u.display_name)}</b>${u.role === 'admin' ? ' <span class="chip sm">แอดมิน</span>' : ''}<br><small>@${EC.esc(u.username)}</small></td>
-            <td><div class="wkprog">${EC.WEEKS.map(w => `<span class="theme-${w.theme}" title="สัปดาห์ ${w.n}: กิจกรรม ${m[w.n]?.a1 ? '✓' : '–'} · สะท้อน 1 ${m[w.n]?.a21 ? '✓' : '–'} · สะท้อน 2 ${m[w.n]?.a22 ? '✓' : '–'}">
-              <em>${w.n}</em>${['a1', 'a21', 'a22'].map(k => `<i class="${m[w.n]?.[k] ? 'on' : ''}"></i>`).join('')}</span>`).join('')}</div></td>
+            <td><div class="wkprog">${EC.WEEKS.map(w => `<span class="theme-${w.theme}" title="สัปดาห์ ${w.n}: กิจกรรม ${m[w.n]?.a1 ? '✓' : '–'} · สะท้อน 1 ${m[w.n]?.a21 ? '✓' : '–'} · สะท้อน 2 ${m[w.n]?.a22 ? '✓' : '–'} · บันทึกท้ายสัปดาห์ ${m[w.n]?.summary ? '✓' : '–'}">
+              <em>${w.n}</em>${['a1', 'a21', 'a22', 'summary'].map(k => `<i class="${m[w.n]?.[k] ? 'on' : ''}"></i>`).join('')}</span>`).join('')}</div></td>
             <td>${u.entry_count}</td><td><small>${fmt(u.last_login_at)}</small></td>
             <td class="acts"><a class="btn sm soft" href="#/admin/user/${u.id}">ดูบันทึก</a>
               <a class="btn sm ghost" href="/api/admin/export.csv?user=${u.id}" title="ดาวน์โหลด CSV">${EC.icon('download')}</a>
@@ -394,12 +431,18 @@
     else if (!parts.length) { app.innerHTML = home(); }
     else if (parts[0] === 'program') { nav = 'program'; app.innerHTML = program(); }
     else if (parts[0] === 'journal') { nav = 'journal'; app.innerHTML = journal(); after = mountJournal; }
-    else if (parts[0] === 'library') { nav = 'library'; app.innerHTML = library(); after = mountLibrary; }
+    else if (parts[0] === 'library') { nav = 'library'; app.innerHTML = EC.renderLibrary(); after = EC.mountLibrary; }
     else if (parts[0] === 'week') {
       nav = 'program';
       const w = EC.WEEKS[(+parts[1] || 1) - 1] || EC.WEEKS[0];
-      document.body.className = 'wk-' + w.theme;
       const sub = parts[2];
+      const stepI = sub === 'a1' ? 0 : sub === 'a2' ? (parts[3] === '2' ? 2 : 1) : sub === 'summary' ? 3 : 0;
+      if (!EC.isOpen(w.n, stepI)) {
+        const nx = EC.nextStep();
+        EC.toast(`${EC.icon('lock')} ขั้นตอนนี้ยังล็อกอยู่ — ทำ <b>สัปดาห์ที่ ${nx.w}: ${EC.stepShort[nx.i]}</b> ให้เสร็จก่อนนะคะ`);
+        location.replace(sub ? EC.stepHref(nx.w, nx.i) : '#/week/' + nx.w); return;
+      }
+      document.body.className = 'wk-' + w.theme;
       if (sub === 'a1') { const [k, r] = renders[w.n]; app.innerHTML = r(w); after = mounts[k]; }
       else if (sub === 'a2') { const s = parts[3] === '2' ? 2 : 1; app.innerHTML = EC.renderReflect(w, s); after = () => EC.mountReflect(w, s); }
       else if (sub === 'summary') { app.innerHTML = weekSummary(w); after = () => mountSummary(w); }
@@ -412,18 +455,7 @@
     if (after) after();
   }
 
-  function mountSummary(w) {
-    EC.$('#sumSave').addEventListener('click', () => {
-      EC.store.upsert({ week: w.n, kind: 'summary', title: 'สิ่งที่ได้เรียนรู้ในสัปดาห์นี้', data: { text: EC.$('#sumNote').value.trim() } });
-      EC.toast('บันทึกสรุปสัปดาห์แล้ว ✓', 'ok');
-    });
-  }
   function mountJournal() {
-    EC.$$('[data-del]').forEach(b => b.addEventListener('click', () => {
-      if (!confirm('ลบบันทึกนี้หรือไม่?')) return;
-      EC.store.remove(b.dataset.del); route();
-    }));
-    EC.$('#jpClear')?.addEventListener('click', () => { if (confirm('ลบบันทึกทั้งหมดหรือไม่? การลบนี้ย้อนกลับไม่ได้')) { EC.store.clear(); route(); } });
     EC.$('#jpPrint').addEventListener('click', () => window.print());
     EC.$('#jpExport').addEventListener('click', () => {
       const blob = new Blob([JSON.stringify(EC.store.raw(), null, 2)], { type: 'application/json' });
@@ -431,29 +463,9 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     });
   }
-  function mountLibrary() {
-    const c = EC.$('#brC'), t = EC.$('#brT'), btn = EC.$('#brBtn');
-    let timer = null;
-    const steps = [['หายใจเข้า', 4000, 'in'], ['กลั้นไว้', 4000, 'hold'], ['หายใจออก', 6000, 'out']];
-    function stop() { clearTimeout(timer); timer = null; c.className = 'br-circle'; t.textContent = 'พร้อม'; btn.innerHTML = `${EC.icon('play')} เริ่ม`; }
-    btn.addEventListener('click', () => {
-      if (timer) return stop();
-      let i = 0, rounds = 0;
-      btn.innerHTML = `${EC.icon('pause')} หยุด`;
-      const next = () => {
-        if (!document.body.contains(c)) return;
-        const [label, ms, cls] = steps[i];
-        c.className = 'br-circle ' + cls; c.style.transitionDuration = ms + 'ms'; t.textContent = label;
-        i = (i + 1) % 3; if (!i) rounds++;
-        timer = rounds >= 4 ? setTimeout(() => { stop(); t.textContent = 'เยี่ยมมาก 💛'; }, ms) : setTimeout(next, ms);
-      };
-      next();
-    });
-  }
-
   EC.$('#bellBtn').addEventListener('click', () => {
-    const next = EC.WEEKS.find(w => progress(w.n).pct < 100);
-    EC.toast(next ? `อย่าลืมบันทึกการสะท้อนของ <b>สัปดาห์ที่ ${next.n}</b> นะคะ 🌿` : 'คุณทำครบทั้ง 8 สัปดาห์แล้ว 🎉');
+    const nx = EC.nextStep();
+    EC.toast(nx ? `ขั้นตอนถัดไปของคุณ: <b>สัปดาห์ที่ ${nx.w} · ${EC.stepShort[nx.i]}</b> 🌿` : 'คุณทำครบทั้ง 8 สัปดาห์แล้ว 🎉');
   });
 
   window.addEventListener('hashchange', route);

@@ -48,39 +48,40 @@
     const feel = ['worried', 'angry', 'relieved', 'calm', 'sad', 'proud'];
     const sigs = ['ใจเต้นเร็ว', 'พูดเร็ว', 'เกร็งไหล่', 'หายใจตื้น'];
     const html = `${EC.actHeader(w, 1, 'ออกแบบสมุด', 'ออกแบบ “หน้าสมุดบันทึกประสบการณ์การสอน” เพื่อรวบรวมเหตุการณ์ อารมณ์ และสัญญาณที่เกิดขึ้นจากการสอนเด็กออทิสติกในวันนี้ โดยใช้ภาพ สี สติกเกอร์ และคำสำคัญตามความรู้สึกของคุณ', EC.art.notebook())}
+      <div class="stepper" id="nbSt">
+      ${EC.stepTrack(['เหตุการณ์วันนี้', 'ความรู้สึกของฉัน', 'สิ่งที่เห็น / สิ่งที่คิด', 'สัญญาณในตัวเอง', 'สิ่งที่อยากจำไว้', 'ตกแต่งสมุด'])}
       <div class="nb-wrap">
-        <div class="nb-tools panel">
+        <div class="nb-tools panel" data-step="5">
           <div class="tool-group"><b>${EC.icon('star')} สติกเกอร์</b><small>แตะเพื่อติด · ลากเพื่อย้าย · ดับเบิลคลิกเพื่อลบ</small>
             <div class="stk-row">${Object.keys(ST).filter(k => !['path', 'raincloud', 'mountain', 'bird', 'wind', 'rain'].includes(k)).map(k => `<button type="button" class="stk" data-k="${k}" aria-label="สติกเกอร์ ${k}">${sticker(k, 34)}</button>`).join('')}</div></div>
           <div class="tool-group"><b>${EC.icon('palette')} สีกระดาษ</b>
             <div class="paper-row">${['#fbf3e2', '#fde8ea', '#e6f0fa', '#eaf3dc', '#f1eafa'].map((c, i) => `<button type="button" class="paper ${i ? '' : 'on'}" data-c="${c}" style="background:${c}" aria-label="สีกระดาษ ${i + 1}"></button>`).join('')}</div></div>
-          <div class="tool-group guide"><b>${EC.icon('bulb')} แนวทางการออกแบบสมุด</b>
-            <ul class="ticks"><li>เลือก 1 เหตุการณ์การสอนเด็กออทิสติกในวันนี้</li><li>ระบุความรู้สึกที่เกิดขึ้น (เลือกสัญลักษณ์/สี/ภาพได้)</li><li>บันทึกสัญญาณที่สังเกตในตัวเอง</li><li>เขียนข้อคิดหรือสิ่งที่อยากจำไว้ (สั้น ๆ)</li></ul></div>
         </div>
         <div class="notebook" id="nb">
           <div class="nb-page left">
             <h2 class="nb-title">วันนี้ในห้องเรียน<br>ของฉัน ♡</h2>
-            <label class="nb-label">เหตุการณ์วันนี้</label>
-            <textarea class="nb-input" id="nbEvent" rows="3" placeholder="เช่น เด็กไม่ยอมเปลี่ยนกิจกรรมจากงานเดี่ยวไปกิจกรรมกลุ่ม"></textarea>
-            <label class="nb-label">ความรู้สึกของฉัน</label>
-            <div class="nb-faces">${feel.map(f => `<button type="button" class="nb-face" data-f="${f}" aria-pressed="false">${EC.face(f, 44)}<small>${EC.EMO[f]}</small></button>`).join('')}</div>
+            <div data-step="0"><label class="nb-label" for="nbEvent">เหตุการณ์วันนี้</label>
+            <textarea class="nb-input" id="nbEvent" rows="3" placeholder="เช่น เด็กไม่ยอมเปลี่ยนกิจกรรมจากงานเดี่ยวไปกิจกรรมกลุ่ม"></textarea></div>
+            <div data-step="1"><label class="nb-label">ความรู้สึกของฉัน</label>
+            <div class="nb-faces">${feel.map(f => `<button type="button" class="nb-face" data-f="${f}" aria-pressed="false">${EC.face(f, 44)}<small>${EC.EMO[f]}</small></button>`).join('')}</div></div>
           </div>
           <div class="nb-rings" aria-hidden="true">${'<i></i>'.repeat(7)}</div>
           <div class="nb-page right">
-            <div class="nb-two">
-              <div><label class="nb-label see">${EC.icon('eye')} สิ่งที่เห็น <small>(ข้อเท็จจริง)</small></label><textarea class="nb-input" id="nbSee" rows="3" placeholder="สิ่งที่เกิดขึ้นจริง เห็น/ได้ยิน..."></textarea></div>
-              <div><label class="nb-label think">${EC.icon('chat')} สิ่งที่คิด <small>(การตีความ)</small></label><textarea class="nb-input" id="nbThink" rows="3" placeholder="สิ่งที่ฉันคิด/ตีความ..."></textarea></div>
+            <div class="nb-two" data-step="2">
+              <div><label class="nb-label see" for="nbSee">${EC.icon('eye')} สิ่งที่เห็น <small>(ข้อเท็จจริง)</small></label><textarea class="nb-input" id="nbSee" rows="3" placeholder="สิ่งที่เกิดขึ้นจริง เห็น/ได้ยิน..."></textarea></div>
+              <div><label class="nb-label think" for="nbThink">${EC.icon('chat')} สิ่งที่คิด <small>(การตีความ)</small></label><textarea class="nb-input" id="nbThink" rows="3" placeholder="สิ่งที่ฉันคิด/ตีความ..."></textarea></div>
             </div>
-            <label class="nb-label">สัญญาณที่สังเกตในตัวเอง</label>
+            <div data-step="3"><label class="nb-label">สัญญาณที่สังเกตในตัวเอง</label>
             <div class="nb-checks">${sigs.map(s => `<label><input type="checkbox" value="${s}"> ${s}</label>`).join('')}</div>
-            <label class="nb-label">สิ่งที่อยากจำไว้</label>
-            <textarea class="nb-input" id="nbMemo" rows="2" placeholder="ค่อย ๆ ประเมินสถานการณ์ก่อนตอบสนอง เพื่อเลือกวิธีที่เหมาะกับเด็ก"></textarea>
+            <input class="nb-input" id="nbSigOther" placeholder="สัญญาณอื่น ๆ (ถ้ามี)..."></div>
+            <div data-step="4"><label class="nb-label" for="nbMemo">สิ่งที่อยากจำไว้</label>
+            <textarea class="nb-input" id="nbMemo" rows="2" placeholder="ค่อย ๆ ประเมินสถานการณ์ก่อนตอบสนอง เพื่อเลือกวิธีที่เหมาะกับเด็ก"></textarea></div>
           </div>
           <div class="nb-stickers" id="nbStk"></div>
         </div>
       </div>
-      <div class="next-bar">${EC.icon('book')}<span>บันทึกหน้าสมุดของคุณ แล้วไปต่อที่การเขียนสะท้อนตนเอง</span>
-        <button type="button" class="btn blue" id="nbSave">${EC.icon('save')} เริ่มออกแบบสมุด – บันทึก</button></div>`;
+      ${EC.stepNav('บันทึกหน้าสมุดและไปเขียนสะท้อนตนเอง')}
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
   EC.mountNotebook = function () {
@@ -116,20 +117,32 @@
       EC.$$('.nb-checks input').forEach(i => i.checked = (prev.signals || []).includes(i.value));
       if (prev.paper) EC.$(`.paper[data-c="${prev.paper}"]`)?.click();
       (prev.stickers || []).forEach(s => addSticker(s.k, s.x, s.y, false));
-    } else {
-      setTimeout(() => { addSticker('flower', 18, 260); addSticker('heart', null, 14); }, 200);
+      EC.$('#nbSigOther').value = (prev.signals || []).filter(x => !sigList().includes(x)).join(', ');
     }
-    EC.$('#nbSave').addEventListener('click', () => {
-      const feelIds = EC.$$('.nb-face[aria-pressed="true"]').map(b => b.dataset.f);
-      const data = {
-        event: EC.$('#nbEvent').value.trim(), see: EC.$('#nbSee').value.trim(), think: EC.$('#nbThink').value.trim(), memo: EC.$('#nbMemo').value.trim(),
-        feelIds, emotions: feelIds.map(f => EC.EMO[f]), signals: EC.$$('.nb-checks input:checked').map(i => i.value),
-        paper: EC.$('.paper.on')?.dataset.c, stickers: EC.$$('.sticker', layer).map(s => ({ k: s.dataset.k, x: s.offsetLeft, y: s.offsetTop }))
-      };
-      if (!data.event && !data.see && !data.think) { EC.toast('ลองเขียนเหตุการณ์ หรือสิ่งที่เห็น/สิ่งที่คิด อย่างน้อย 1 ช่องนะคะ'); return; }
-      EC.store.upsert({ week: 3, kind: 'a1', title: 'ออกแบบสมุด', data });
-      const r = nb.getBoundingClientRect(); EC.burst(r.left + r.width / 2, r.top + 40, { count: 22, shapes: ['star', 'heart'], up: true, dist: 120 });
-      EC.toast('บันทึกหน้าสมุดแล้ว ✓', 'ok');
+    function sigList() { return EC.$$('.nb-checks input').map(i => i.value); }
+    const signals = () => EC.$$('.nb-checks input:checked').map(i => i.value).concat(EC.$('#nbSigOther').value.trim() ? [EC.$('#nbSigOther').value.trim()] : []);
+    EC.stepper(EC.$('#nbSt'), {
+      mode: 'reveal',
+      steps: [
+        { title: 'เหตุการณ์วันนี้', hint: 'เขียน <b>1 เหตุการณ์</b> จากการสอนเด็กออทิสติกในวันนี้ ลงบนหน้าสมุด', validate: () => EC.need.text(EC.$('#nbEvent')) },
+        { title: 'ความรู้สึกของฉัน', hint: 'แตะเลือก <b>ความรู้สึก</b> ที่เกิดขึ้นในเหตุการณ์นั้น (เลือกได้หลายข้อ)', validate: () => EC.need.pick(EC.$$('.nb-face[aria-pressed="true"]').length, 'กรุณาเลือกความรู้สึกอย่างน้อย 1 ข้อ') },
+        { title: 'สิ่งที่เห็น / สิ่งที่คิด', hint: 'แยก <b>สิ่งที่เห็นจริง</b> (ข้อเท็จจริง) ออกจาก <b>สิ่งที่คิด</b> (การตีความของคุณ)', validate: () => EC.need.texts([EC.$('#nbSee'), EC.$('#nbThink')], 'กรุณาเขียนทั้ง “สิ่งที่เห็น” และ “สิ่งที่คิด”') },
+        { title: 'สัญญาณในตัวเอง', hint: 'เลือก <b>สัญญาณ</b> ที่สังเกตได้ในตัวเอง หรือพิมพ์เพิ่มเอง', validate: () => EC.need.pick(signals().length, 'กรุณาเลือกหรือเขียนสัญญาณอย่างน้อย 1 ข้อ') },
+        { title: 'สิ่งที่อยากจำไว้', hint: 'เขียน <b>ข้อคิด</b> หรือสิ่งที่อยากจำไว้จากเหตุการณ์นี้ (สั้น ๆ)', validate: () => EC.need.text(EC.$('#nbMemo')) },
+        { title: 'ตกแต่งสมุด', hint: 'ตกแต่งหน้าสมุดด้วย <b>สติกเกอร์และสีกระดาษ</b> ตามความรู้สึกของคุณ แล้วกดบันทึก', enter: () => { if (!prev && !EC.$('.sticker', layer)) { addSticker('flower', 18, 260); addSticker('heart', null, 14); } } }
+      ],
+      onFinish() {
+        const feelIds = EC.$$('.nb-face[aria-pressed="true"]').map(b => b.dataset.f);
+        const data = {
+          event: EC.$('#nbEvent').value.trim(), see: EC.$('#nbSee').value.trim(), think: EC.$('#nbThink').value.trim(), memo: EC.$('#nbMemo').value.trim(),
+          feelIds, emotions: feelIds.map(f => EC.EMO[f]), signals: signals(),
+          paper: EC.$('.paper.on')?.dataset.c, stickers: EC.$$('.sticker', layer).map(s => ({ k: s.dataset.k, x: s.offsetLeft, y: s.offsetTop }))
+        };
+        EC.store.upsert({ week: 3, kind: 'a1', title: 'ออกแบบสมุด', data });
+        const r = nb.getBoundingClientRect(); EC.burst(r.left + r.width / 2, r.top + 40, { count: 22, shapes: ['star', 'heart'], up: true, dist: 120 });
+        EC.toast('บันทึกหน้าสมุดแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(1100);
+      }
     });
   };
 
@@ -138,26 +151,36 @@
      ===================================================================== */
   const PAINTS = ['#7f9cc4', '#e9a1a1', '#9cb77a', '#f2c85b', '#b59ad6', '#d9b48c', '#e0786a', '#b8c3cc', '#7d7d86'];
   EC.renderPaint = function (w) {
-    const feels = ['กังวล', 'หงุดหงิด', 'เหนื่อยล้า', 'สงบ', 'มีหวัง', 'ภูมิใจ', 'อื่น ๆ'];
+    const feels = ['กังวล', 'หงุดหงิด', 'เหนื่อยล้า', 'สงบ', 'มีหวัง', 'ภูมิใจ', 'ผิดหวัง', 'ตั้งใจ'];
     const html = `${EC.actHeader(w, 1, 'ปาสีความรู้สึก', 'เลือกสีที่แทนความรู้สึกของคุณในช่วงการสอนเด็กออทิสติก แล้วปาสีลงบนกระดาษเพื่อสร้างภาพความรู้สึกในวันนี้ — ไม่มีความหมายของสีที่ถูกหรือผิด', EC.art.paint())}
-      <div class="paint-grid">
-        <section class="panel swatch-panel"><h3>เลือกสี</h3>
-          <div class="swatches">${PAINTS.map((c, i) => `<button type="button" class="swatch ${i ? '' : 'on'}" data-c="${c}" style="--c:${c}" aria-label="สี ${i + 1}"></button>`).join('')}</div>
-          <div class="brush-mode"><label><input type="radio" name="pm" value="splash" checked> ปาสี (คลิก)</label><label><input type="radio" name="pm" value="brush"> พู่กัน (ลาก)</label></div>
+      <div class="stepper" id="pcSt">
+        ${EC.stepTrack(['เหตุการณ์ในการสอน', 'ปาสีความรู้สึก', 'ตอนนั้นฉันรู้สึก', 'ภาพนี้บอกอะไร'])}
+        <section class="step-card" data-step="0">
+          <h2 class="step-h">นึกถึงเหตุการณ์หนึ่งในการสอนเด็กออทิสติก</h2>
+          <p class="step-sub">เลือกช่วงเหตุการณ์ที่ใกล้เคียงที่สุด หรือเขียนเหตุการณ์ของคุณเอง</p>
+          <div class="tchips big" id="pcEv">${EC.EVENTS.map(e => `<button type="button" class="tchip" aria-pressed="false">${e.t}</button>`).join('')}</div>
+          <input class="inp" id="pcEvOther" maxlength="200" placeholder="หรือเขียนเหตุการณ์อื่น ๆ ของคุณ...">
         </section>
-        <section class="canvas-box"><canvas id="pc" width="900" height="600" aria-label="กระดาษสำหรับปาสี"></canvas><div class="canvas-hint" id="pcHint">คลิกหรือแตะบนกระดาษเพื่อปาสี 🎨</div></section>
-        <section class="panel">
-          <h3>ช่วงเหตุการณ์ในการสอน</h3>
-          <select id="pcEvent" class="select"><option value="">เลือกเหตุการณ์</option>${EC.EVENTS.map(e => `<option>${e.t}</option>`).join('')}<option>อื่น ๆ</option></select>
-          <h3 class="mt">ตอนนั้นคุณรู้สึก...</h3>
-          <div class="tchips" id="pcFeel">${feels.map(f => `<button type="button" class="tchip" aria-pressed="false">${f}</button>`).join('')}</div>
-          <h3 class="mt">ภาพนี้บอกอะไรเกี่ยวกับความคาดหวังของฉัน?</h3>
-          <textarea class="ta" id="pcNote" rows="3" placeholder="เช่น สีเทามีมากกว่าที่คิด เพราะฉันคาดหวังให้เด็กเปลี่ยนกิจกรรมได้เร็ว..."></textarea>
+        <div class="paint-grid" data-step="1">
+          <section class="panel swatch-panel"><h3>เลือกสี</h3>
+            <div class="swatches">${PAINTS.map((c, i) => `<button type="button" class="swatch ${i ? '' : 'on'}" data-c="${c}" style="--c:${c}" aria-label="สี ${i + 1}"></button>`).join('')}</div>
+            <div class="brush-mode"><label><input type="radio" name="pm" value="splash" checked> ปาสี (คลิก)</label><label><input type="radio" name="pm" value="brush"> พู่กัน (ลาก)</label></div>
+            <button type="button" class="btn ghost sm mt" id="pcClear">${EC.icon('refresh')} ล้างภาพ</button>
+          </section>
+          <section class="canvas-box"><canvas id="pc" width="900" height="600" aria-label="กระดาษสำหรับปาสี"></canvas><div class="canvas-hint" id="pcHint">คลิกหรือแตะบนกระดาษเพื่อปาสี 🎨</div></section>
+        </div>
+        <section class="step-card" data-step="2">
+          <h2 class="step-h">ตอนนั้น คุณรู้สึกอย่างไร?</h2>
+          <p class="step-sub">เลือกได้หลายข้อ หรือเขียนความรู้สึกอื่น ๆ</p>
+          <div class="tchips big" id="pcFeel">${feels.map(f => `<button type="button" class="tchip" aria-pressed="false">${f}</button>`).join('')}</div>
+          <input class="inp" id="pcFeelOther" maxlength="100" placeholder="ความรู้สึกอื่น ๆ...">
         </section>
-      </div>
-      <div class="row-center">
-        <button type="button" class="btn ghost" id="pcClear">${EC.icon('refresh')} ล้างภาพ</button>
-        <button type="button" class="btn blue" id="pcSave">${EC.icon('tick')} บันทึกภาพ</button>
+        <section class="step-card" data-step="3">
+          <h2 class="step-h">ภาพนี้บอกอะไรเกี่ยวกับความรู้สึกและความคาดหวังของฉัน?</h2>
+          <img class="thumb center" id="pcPreview" alt="ภาพความรู้สึกที่ปาสีไว้">
+          <textarea class="ta big" id="pcNote" rows="4" maxlength="800" placeholder="เช่น สีเทามีมากกว่าที่คิด เพราะฉันคาดหวังให้เด็กเปลี่ยนกิจกรรมได้เร็ว..."></textarea>
+        </section>
+        ${EC.stepNav('บันทึกภาพและไปเขียนสะท้อนตนเอง')}
       </div>`;
     return EC.weekShell(w, 'a1', html);
   };
@@ -224,20 +247,34 @@
     EC.$$('.swatch').forEach(b => b.addEventListener('click', () => { color = b.dataset.c; EC.$$('.swatch').forEach(x => x.classList.toggle('on', x === b)); }));
     EC.$$('input[name="pm"]').forEach(r => r.addEventListener('change', () => mode = r.value));
     EC.$('#pcFeel').addEventListener('click', e => { const b = e.target.closest('.tchip'); if (b) b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); });
-    EC.$('#pcClear').addEventListener('click', () => { paper(); EC.$('#pcHint').classList.remove('hide'); });
+    EC.$('#pcEv').addEventListener('click', e => { const b = e.target.closest('.tchip'); if (b) EC.$$('#pcEv .tchip').forEach(x => x.setAttribute('aria-pressed', x === b && x.getAttribute('aria-pressed') !== 'true')); });
+    EC.$('#pcClear').addEventListener('click', () => { paper(); painted = false; EC.$('#pcHint').classList.remove('hide'); });
+    let painted = false;
+    cv.addEventListener('pointerdown', () => { painted = true; });
     const prev = EC.store.find(4, 'a1')[0]?.data;
     if (prev) {
-      if (prev.img) { const im = new Image(); im.onload = () => { ctx.drawImage(im, 0, 0, cv.width, cv.height); EC.$('#pcHint').classList.add('hide'); }; im.src = prev.img; }
-      EC.$('#pcEvent').value = prev.event || ''; EC.$('#pcNote').value = prev.note || '';
+      if (prev.img) { const im = new Image(); im.onload = () => { ctx.drawImage(im, 0, 0, cv.width, cv.height); painted = true; EC.$('#pcHint').classList.add('hide'); }; im.src = prev.img; }
+      EC.$('#pcNote').value = prev.note || '';
+      const evBtn = EC.$$('#pcEv .tchip').find(b => b.textContent === prev.event);
+      if (evBtn) evBtn.setAttribute('aria-pressed', 'true'); else EC.$('#pcEvOther').value = prev.event || '';
       EC.$$('#pcFeel .tchip').forEach(b => { if ((prev.emotions || []).includes(b.textContent)) b.setAttribute('aria-pressed', 'true'); });
+      EC.$('#pcFeelOther').value = (prev.emotions || []).filter(x => !EC.$$('#pcFeel .tchip').some(b => b.textContent === x)).join(', ');
     }
-    EC.$('#pcSave').addEventListener('click', () => {
-      const t = document.createElement('canvas'); t.width = 450; t.height = 300;
-      t.getContext('2d').drawImage(cv, 0, 0, 450, 300);
-      EC.store.upsert({ week: 4, kind: 'a1', title: 'ปาสีความรู้สึก', data: {
-        img: t.toDataURL('image/jpeg', 0.75), event: EC.$('#pcEvent').value,
-        emotions: EC.$$('#pcFeel .tchip[aria-pressed="true"]').map(b => b.textContent), note: EC.$('#pcNote').value.trim() } });
-      EC.toast('บันทึกภาพความรู้สึกแล้ว ✓', 'ok');
+    const eventVal = () => EC.$('#pcEvOther').value.trim() || EC.$('#pcEv .tchip[aria-pressed="true"]')?.textContent || '';
+    const feelVal = () => EC.$$('#pcFeel .tchip[aria-pressed="true"]').map(b => b.textContent).concat(EC.$('#pcFeelOther').value.trim() ? [EC.$('#pcFeelOther').value.trim()] : []);
+    const snapshot = () => { const t = document.createElement('canvas'); t.width = 450; t.height = 300; t.getContext('2d').drawImage(cv, 0, 0, 450, 300); return t.toDataURL('image/jpeg', 0.75); };
+    EC.stepper(EC.$('#pcSt'), {
+      steps: [
+        { title: 'เหตุการณ์ในการสอน', hint: 'เลือก <b>ช่วงเหตุการณ์</b> ในการสอนที่คุณนึกถึง หรือเขียนเหตุการณ์ของคุณเอง', validate: () => eventVal() ? '' : 'กรุณาเลือกหรือเขียนเหตุการณ์' },
+        { title: 'ปาสีความรู้สึก', hint: 'เลือก <b>สี</b> ที่แทนความรู้สึก แล้ว <b>แตะบนกระดาษ</b> เพื่อปาสีได้อย่างอิสระ', validate: () => painted ? '' : 'ลองปาสีลงบนกระดาษอย่างน้อย 1 ครั้งนะคะ 🎨' },
+        { title: 'ตอนนั้นฉันรู้สึก', hint: 'เลือก <b>ความรู้สึก</b> ที่เกิดขึ้นในเหตุการณ์นั้น', validate: () => EC.need.pick(feelVal().length, 'กรุณาเลือกหรือเขียนความรู้สึกอย่างน้อย 1 ข้อ') },
+        { title: 'ภาพนี้บอกอะไร', hint: 'มองภาพที่ปาสีไว้ แล้ว <b>เขียนสิ่งที่ภาพบอก</b> เกี่ยวกับความรู้สึกและความคาดหวังของคุณ', enter: () => { EC.$('#pcPreview').src = snapshot(); }, validate: () => EC.need.text(EC.$('#pcNote')) }
+      ],
+      onFinish() {
+        EC.store.upsert({ week: 4, kind: 'a1', title: 'ปาสีความรู้สึก', data: { img: snapshot(), event: eventVal(), emotions: feelVal(), note: EC.$('#pcNote').value.trim() } });
+        EC.toast('บันทึกภาพความรู้สึกแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(900);
+      }
     });
   };
 
@@ -249,26 +286,32 @@
   EC.renderFill = function (w) {
     const html = `${EC.actHeader(w, 1, 'เติมภาพความรู้สึกของฉัน', 'กิจกรรมนี้ช่วยให้ครูแสดงความรู้สึกของตนเองในปัจจุบันระหว่างการสอนเด็กออทิสติก ผ่านการวาดภาพและสัญลักษณ์ต่าง ๆ ในภาพทิวทัศน์ที่ผ่อนคลาย', EC.art.sky())}
       <div class="goal-strip">${EC.icon('target')}<b>เป้าหมาย</b><ul><li>เข้าใจและรู้เท่าทันความรู้สึกของตนเองขณะสอนเด็กออทิสติก</li><li>หยุดและเว้นจังหวะก่อนตอบสนองต่อพฤติกรรมของเด็ก</li><li>สังเกตสิ่งที่เด็กออทิสติกอาจกำลังสื่อสารผ่านพฤติกรรมของเขา</li></ul></div>
-      <div class="fill-grid">
-        <section class="canvas-box"><canvas id="fc" width="900" height="640" aria-label="ภาพทิวทัศน์สำหรับเติมภาพ"></canvas><div class="canvas-hint" id="fcHint">เลือกสัญลักษณ์แล้วแตะบนภาพ หรือเลือกสีแล้วลากเพื่อระบาย</div></section>
-        <section class="panel">
-          <h3>${EC.icon('palette')} เครื่องมือเติมภาพ</h3>
-          <small class="muted">สีที่ฉันอยากใช้</small>
-          <div class="crayons">${CRAYON.map((c, i) => `<button type="button" class="crayon" data-c="${c}" style="--c:${c}" aria-label="สีเทียน ${i + 1}"></button>`).join('')}</div>
-          <small class="muted">สัญลักษณ์/องค์ประกอบง่าย ๆ</small>
-          <div class="stamps">${STAMPS.map(([k, n], i) => `<button type="button" class="stamp ${i ? '' : 'on'}" data-k="${k}" title="${n}">${sticker(k, 32)}</button>`).join('')}</div>
-          <small class="muted">คำชวนคิดในการเติมภาพ</small>
-          <input class="inp" id="fq1" placeholder="☁ ถ้าความรู้สึกของฉันเป็นท้องฟ้า...">
-          <input class="inp" id="fq2" placeholder="〰 ถ้าความรู้สึกของฉันเป็นลม...">
-          <input class="inp" id="fq3" placeholder="✎ สิ่งที่ฉันอยากเติมลงไปในภาพตอนนี้...">
-          <button type="button" class="btn ghost sm mt" id="fcUndo">${EC.icon('refresh')} เริ่มภาพใหม่</button>
+      <div class="stepper" id="fcSt">
+        ${EC.stepTrack(['เติมภาพความรู้สึก', 'สิ่งที่ฉันสื่อผ่านภาพ', 'คำชวนคิด'])}
+        <div class="fill-grid" data-step="0">
+          <section class="canvas-box"><canvas id="fc" width="900" height="640" aria-label="ภาพทิวทัศน์สำหรับเติมภาพ"></canvas><div class="canvas-hint" id="fcHint">เลือกสัญลักษณ์แล้วแตะบนภาพ หรือเลือกสีแล้วลากเพื่อระบาย</div></section>
+          <section class="panel">
+            <h3>${EC.icon('palette')} เครื่องมือเติมภาพ</h3>
+            <small class="muted">สัญลักษณ์/องค์ประกอบง่าย ๆ (แตะแล้วแตะบนภาพ)</small>
+            <div class="stamps">${STAMPS.map(([k, n], i) => `<button type="button" class="stamp ${i ? '' : 'on'}" data-k="${k}" title="${n}" aria-label="${n}">${sticker(k, 32)}</button>`).join('')}</div>
+            <small class="muted">สีที่ฉันอยากใช้ (แตะแล้วลากบนภาพ)</small>
+            <div class="crayons">${CRAYON.map((c, i) => `<button type="button" class="crayon" data-c="${c}" style="--c:${c}" aria-label="สีเทียน ${i + 1}"></button>`).join('')}</div>
+            <button type="button" class="btn ghost sm mt" id="fcUndo">${EC.icon('refresh')} เริ่มภาพใหม่</button>
+          </section>
+        </div>
+        <section class="step-card" data-step="1">
+          <h2 class="step-h">สัญลักษณ์แต่ละอย่างในภาพ หมายถึงอะไรสำหรับคุณ?</h2>
+          <p class="step-sub">เช่น <i>เมฆฝน = รู้สึกกังวลระหว่างสอน</i>, <i>ดวงอาทิตย์ = ยังมีความหวังกับเด็ก</i></p>
+          <div class="fill-recap"><img class="thumb" id="fcPreview" alt="ภาพที่เติมไว้"><div id="fcMeanings" class="meanings"></div></div>
         </section>
-        <section class="panel">
-          <h3>${EC.icon('bulb')} สิ่งที่ฉันสื่อผ่านภาพ</h3>
-          <div id="fcMeanings" class="meanings"><p class="muted">เมื่อคุณวางสัญลักษณ์ลงบนภาพ ช่องสำหรับเขียนความหมายจะปรากฏที่นี่ เช่น <i>เมฆสีเทา = รู้สึกกังวลระหว่างสอน</i></p></div>
+        <section class="step-card" data-step="2">
+          <h2 class="step-h">คำชวนคิดจากภาพของคุณ</h2>
+          <label class="q-line">☁ ถ้าความรู้สึกของฉันเป็นท้องฟ้า...<textarea class="ta" id="fq1" rows="2" maxlength="300"></textarea></label>
+          <label class="q-line">〰 ถ้าความรู้สึกของฉันเป็นลม...<textarea class="ta" id="fq2" rows="2" maxlength="300"></textarea></label>
+          <label class="q-line">✎ สิ่งที่ฉันอยากเติมลงไปในภาพตอนนี้ (มุมมองใหม่ต่อเหตุการณ์)...<textarea class="ta" id="fq3" rows="2" maxlength="300"></textarea></label>
         </section>
-      </div>
-      <div class="row-end"><button type="button" class="btn brown" id="fcSave">บันทึกและไปต่อ ${EC.icon('arrow')}</button></div>`;
+        ${EC.stepNav('บันทึกภาพและไปเขียนสะท้อนตนเอง')}
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
   EC.mountFill = function () {
@@ -325,21 +368,28 @@
     cv.addEventListener('pointerup', () => drawing = false);
     EC.$$('.crayon').forEach(b => b.addEventListener('click', () => { tool = { t: 'brush', c: b.dataset.c }; EC.$$('.crayon,.stamp').forEach(x => x.classList.toggle('on', x === b)); }));
     EC.$$('.stamp').forEach(b => b.addEventListener('click', () => { tool = { t: 'stamp', k: b.dataset.k }; EC.$$('.crayon,.stamp').forEach(x => x.classList.toggle('on', x === b)); }));
-    EC.$('#fcUndo').addEventListener('click', () => { scene(); used.clear(); EC.$('#fcMeanings').innerHTML = '<p class="muted">วางสัญลักษณ์ลงบนภาพเพื่อเริ่มเขียนความหมาย</p>'; EC.$('#fcHint').classList.remove('hide'); });
+    EC.$('#fcUndo').addEventListener('click', () => { scene(); used.clear(); EC.$('#fcMeanings').innerHTML = ''; EC.$('#fcHint').classList.remove('hide'); });
     const prev = EC.store.find(5, 'a1')[0]?.data;
     if (prev) {
       if (prev.img) { const im = new Image(); im.onload = () => { ctx.drawImage(im, 0, 0, cv.width, cv.height); EC.$('#fcHint').classList.add('hide'); }; im.src = prev.img; }
       (prev.meanings || []).forEach(m => used.set(m.k, m.v)); renderMeanings();
       ['fq1', 'fq2', 'fq3'].forEach((id, i) => EC.$('#' + id).value = (prev.prompts || [])[i] || '');
     }
-    EC.$('#fcSave').addEventListener('click', () => {
-      const t = document.createElement('canvas'); t.width = 450; t.height = 320;
-      t.getContext('2d').drawImage(cv, 0, 0, 450, 320);
-      EC.store.upsert({ week: 5, kind: 'a1', title: 'เติมภาพความรู้สึกของฉัน', data: {
-        img: t.toDataURL('image/jpeg', 0.75), meanings: [...used.entries()].map(([k, v]) => ({ k, name: STAMPS.find(s => s[0] === k)[1], v })),
-        prompts: ['fq1', 'fq2', 'fq3'].map(id => EC.$('#' + id).value.trim()) } });
-      EC.toast('บันทึกภาพแล้ว ✓ กำลังไปที่การเขียนสะท้อนตนเอง', 'ok');
-      setTimeout(() => location.hash = '#/week/5/a2', 1200);
+    const snapshot = () => { const t = document.createElement('canvas'); t.width = 450; t.height = 320; t.getContext('2d').drawImage(cv, 0, 0, 450, 320); return t.toDataURL('image/jpeg', 0.75); };
+    const qs = () => ['fq1', 'fq2', 'fq3'].map(id => EC.$('#' + id));
+    EC.stepper(EC.$('#fcSt'), {
+      steps: [
+        { title: 'เติมภาพความรู้สึก', hint: 'เลือก <b>สัญลักษณ์</b> (เช่น เมฆฝน ดวงอาทิตย์ ดอกไม้) แล้วแตะบนภาพ หรือเลือกสีเพื่อระบาย ให้ภาพสื่อความรู้สึกของคุณ', validate: () => EC.need.pick(used.size, 'กรุณาวางสัญลักษณ์บนภาพอย่างน้อย 1 อย่าง') },
+        { title: 'สิ่งที่ฉันสื่อผ่านภาพ', hint: 'เขียน <b>ความหมาย</b> ของสัญลักษณ์แต่ละอย่างที่คุณวางในภาพ', enter: () => { EC.$('#fcPreview').src = snapshot(); renderMeanings(); },
+          validate: () => [...used.values()].every(v => v.trim()) ? '' : 'กรุณาเขียนความหมายให้ครบทุกสัญลักษณ์' },
+        { title: 'คำชวนคิด', hint: 'ตอบ <b>คำชวนคิด</b> ทั้ง 3 ข้อ เพื่อมองเหตุการณ์ด้วยมุมมองใหม่', validate: () => EC.need.texts(qs()) }
+      ],
+      onFinish() {
+        EC.store.upsert({ week: 5, kind: 'a1', title: 'เติมภาพความรู้สึกของฉัน', data: {
+          img: snapshot(), meanings: [...used.entries()].map(([k, v]) => ({ k, name: STAMPS.find(s => s[0] === k)[1], v })), prompts: qs().map(t => t.value.trim()) } });
+        EC.toast('บันทึกภาพแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(900);
+      }
     });
   };
 
@@ -355,8 +405,9 @@
   const STRAT = ['เว้นจังหวะก่อนตอบสนอง', 'หายใจอย่างมีสติ', 'ปรับน้ำเสียงให้นุ่มนวลลง', 'ให้เวลาตนเองก่อนตอบสนอง', 'ขอความช่วยเหลือจากเพื่อนครู', 'บอกความรู้สึกตนเองกับคนที่ไว้ใจ'];
   EC.renderBoxes = function (w) {
     const html = `${EC.actHeader(w, 1, 'กล่องความรู้สึกของฉัน', 'เลือก “ความรู้สึก” จากด้านซ้าย แล้วลากไปใส่ในกล่องที่ตรงกับความรู้สึกของคุณในช่วงนี้ จากประสบการณ์การสอนเด็กที่มีภาวะออทิซึมสเปกตรัม', EC.art.box())}
-      <div class="flow-strip"><span class="fs s1">${EC.icon('pause')} หยุด</span>${EC.icon('arrow')}<span class="fs s2">${EC.icon('eye')} สังเกต</span>${EC.icon('arrow')}<span class="fs s3">${EC.icon('tick')} เลือก</span></div>
-      <div class="boxes-grid">
+      <div class="stepper" id="bxSt">
+      ${EC.stepTrack(['หยุดและจัดกล่องความรู้สึก', 'เลือกวิธีกำกับอารมณ์'])}
+      <div class="boxes-grid" data-step="0">
         <section class="panel feel-tray"><h3>ความรู้สึกของฉัน ${EC.icon('heart')}</h3><small class="muted">ลากไปวางในกล่องที่เหมาะสม (หรือแตะความรู้สึก แล้วแตะกล่อง)</small>
           <div class="tray" id="bxTray">${BOX_FEEL.map(([f, t]) => `<button type="button" class="fchip" data-f="${f}">${EC.face(f, 28)}<span>${t}</span></button>`).join('')}</div>
         </section>
@@ -370,12 +421,15 @@
             </div>
           </div>`).join('')}</div>
       </div>
-      <section class="panel mt">
-        <h3>${EC.icon('sparkle')} วิธีกำกับอารมณ์ที่ฉันสามารถนำมาใช้ได้</h3>
-        <div class="tchips" id="bxStrat">${STRAT.map(s => `<button type="button" class="tchip" aria-pressed="false">${s}</button>`).join('')}</div>
-        <textarea class="ta mt" id="bxNote" rows="2" placeholder="วิธีอื่น ๆ หรือสิ่งที่อยากลองใช้ในสถานการณ์การสอนครั้งต่อไป..."></textarea>
+      <section class="step-card" data-step="1">
+        <div class="flow-strip"><span class="fs s1">${EC.icon('pause')} หยุด</span>${EC.icon('arrow')}<span class="fs s2">${EC.icon('eye')} สังเกต</span>${EC.icon('arrow')}<span class="fs s3">${EC.icon('tick')} เลือก</span></div>
+        <h2 class="step-h">เมื่อความรู้สึกเหล่านี้เกิดขึ้นระหว่างสอน คุณจะเลือกกำกับอารมณ์อย่างไร?</h2>
+        <p class="step-sub">เลือกวิธีที่คุณใช้ได้จริง (เลือกได้หลายข้อ) แล้วเขียนว่าจะนำไปใช้อย่างไร</p>
+        <div class="tchips big" id="bxStrat">${STRAT.map(s => `<button type="button" class="tchip" aria-pressed="false">${s}</button>`).join('')}</div>
+        <textarea class="ta big mt" id="bxNote" rows="3" maxlength="500" placeholder="เช่น เมื่อรู้สึกหงุดหงิดตอนเด็กไม่ยอมเปลี่ยนกิจกรรม ฉันจะหายใจลึก ๆ 1 ครั้ง แล้วใช้น้ำเสียงที่สงบลง..."></textarea>
       </section>
-      <div class="row-center"><button type="button" class="btn rose" id="bxSave">${EC.icon('save')} บันทึกกิจกรรม</button></div>`;
+      ${EC.stepNav('บันทึกและไปเขียนสะท้อนตนเอง')}
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
   EC.mountBoxes = function () {
@@ -441,12 +495,21 @@
       EC.$$('#bxStrat .tchip').forEach(b => { if ((prev.strategies || []).includes(b.textContent)) b.setAttribute('aria-pressed', 'true'); });
       EC.$('#bxNote').value = prev.note || '';
     }
-    EC.$('#bxSave').addEventListener('click', () => {
-      const boxes = {}; const names = {};
-      BOXES.forEach(([id]) => { boxes[id] = EC.$$(`.drop[data-drop="${id}"] .fchip`).map(c => c.dataset.f); names[id] = boxes[id].map(f => BOX_FEEL.find(x => x[0] === f)[1]); });
-      if (!Object.values(boxes).flat().length) { EC.toast('ลองวางความรู้สึกลงในกล่องอย่างน้อย 1 ความรู้สึกนะคะ'); return; }
-      EC.store.upsert({ week: 6, kind: 'a1', title: 'กล่องความรู้สึกของฉัน', data: { boxes, names, strategies: EC.$$('#bxStrat .tchip[aria-pressed="true"]').map(b => b.textContent), note: EC.$('#bxNote').value.trim() } });
-      EC.toast('บันทึกกล่องความรู้สึกแล้ว ✓', 'ok');
+    const placedCount = () => EC.$$('.drop .fchip').length;
+    const strategies = () => EC.$$('#bxStrat .tchip[aria-pressed="true"]').map(b => b.textContent);
+    EC.stepper(EC.$('#bxSt'), {
+      steps: [
+        { title: 'หยุดและจัดกล่องความรู้สึก', hint: '<b>หยุด</b> แล้วทบทวนความรู้สึก — ลาก (หรือแตะ) ความรู้สึกไปใส่ <b>กล่องที่ตรงกับใจ</b> อย่างน้อย 1 ความรู้สึก', validate: () => EC.need.pick(placedCount(), 'กรุณาวางความรู้สึกลงในกล่องอย่างน้อย 1 ความรู้สึก') },
+        { title: 'เลือกวิธีกำกับอารมณ์', hint: '<b>เลือก</b> วิธีกำกับอารมณ์ที่นำมาใช้ได้ แล้ว <b>เขียน</b> ว่าจะใช้อย่างไร',
+          validate: () => EC.need.pick(strategies().length, 'กรุณาเลือกวิธีกำกับอารมณ์อย่างน้อย 1 ข้อ') || EC.need.text(EC.$('#bxNote'), 'กรุณาเขียนว่าจะนำวิธีนี้ไปใช้อย่างไร') }
+      ],
+      onFinish() {
+        const boxes = {}; const names = {};
+        BOXES.forEach(([id]) => { boxes[id] = EC.$$(`.drop[data-drop="${id}"] .fchip`).map(c => c.dataset.f); names[id] = boxes[id].map(f => BOX_FEEL.find(x => x[0] === f)[1]); });
+        EC.store.upsert({ week: 6, kind: 'a1', title: 'กล่องความรู้สึกของฉัน', data: { boxes, names, strategies: strategies(), note: EC.$('#bxNote').value.trim() } });
+        EC.toast('บันทึกกล่องความรู้สึกแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(900);
+      }
     });
   };
 
@@ -461,25 +524,26 @@
   EC.renderTimeline = function (w) {
     const obs = [['heart', 'อารมณ์ของฉัน', 'ฉันรู้สึกอย่างไรในเหตุการณ์นี้?'], ['bolt', 'สิ่งกระตุ้น', 'อะไรที่น่าจะเป็นตัวกระตุ้นให้เกิดเหตุการณ์นี้?'], ['gear', 'การตอบสนองของฉัน', 'ฉันได้ทำหรือพูดอะไรไปบ้าง?'], ['sprout', 'สิ่งที่ได้เรียนรู้', 'ฉันได้เรียนรู้อะไรเกี่ยวกับการสอนเด็กออทิสติกจากเหตุการณ์นี้?']];
     const html = `${EC.actHeader(w, 1, 'เรียนรู้จากเหตุการณ์จริงของฉัน', 'ทบทวนเหตุการณ์จริงในการสอน เพื่อมองเห็นสิ่งที่เกิดขึ้น อารมณ์ของตนเอง และสิ่งที่ได้เรียนรู้', EC.art.classroom())}
-      <div class="tl-grid">
-        <section class="panel"><h3><span class="num">1</span> เลือกเหตุการณ์จริง</h3><small class="muted">เลือก 1 เหตุการณ์จริงจากการสอนเด็กออทิสติกที่ต้องการทบทวนในครั้งนี้</small>
+      <div class="stepper" id="tlSt">
+        ${EC.stepTrack(['เลือกเหตุการณ์จริง', 'มองเหตุการณ์เป็นลำดับ', 'สิ่งที่ฉันสังเกตได้'])}
+        <section class="step-card" data-step="0"><h2 class="step-h">เลือก 1 เหตุการณ์จริงที่อยากทบทวน</h2>
+          <p class="step-sub">ตัวอย่าง: “ช่วงเปลี่ยนกิจกรรม เด็กไม่ยอมเก็บของและไม่สบายใจเมื่อบอกให้หยุดกิจกรรมที่กำลังสนใจ”</p>
           <div class="ev-list" id="tlEv">${W7EV.map(([id, t, d, f]) => `<button type="button" class="ev-card" data-id="${id}" aria-pressed="false"><span class="radio"></span><span class="ev-face">${EC.face(f, 48)}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')}
-            <input class="inp" id="tlOther" placeholder="หรือเขียนเหตุการณ์อื่น...">
+            <label class="other-ev">${EC.icon('pencil')} <span>เหตุการณ์อื่น ๆ ของฉัน (โปรดระบุ)</span><textarea class="ta" id="tlOther" rows="2" maxlength="300" placeholder="เล่าเหตุการณ์จริงของคุณสั้น ๆ..."></textarea></label>
           </div>
         </section>
-        <section class="panel"><h3><span class="num">2</span> มองเหตุการณ์เป็นลำดับ</h3><small class="muted">บันทึกเหตุการณ์ที่เลือก โดยเรียงลำดับก่อน–ขณะ–หลังเกิดเหตุ</small>
+        <section class="step-card" data-step="1"><h2 class="step-h">เรียงลำดับเหตุการณ์: ก่อน – ขณะ – หลัง</h2>
           <ol class="timeline">
             <li class="t1">${EC.icon('calendar')}<b>ก่อนเกิดเหตุ</b><textarea rows="2" id="tlB" placeholder="เกิดอะไรขึ้นก่อนหน้านั้น?"></textarea></li>
             <li class="t2">${EC.icon('bolt')}<b>ขณะเกิดเหตุ</b><textarea rows="2" id="tlD" placeholder="เกิดอะไรขึ้นในขณะนั้น?"></textarea></li>
             <li class="t3">${EC.icon('check')}<b>หลังเกิดเหตุ</b><textarea rows="2" id="tlA" placeholder="เกิดอะไรขึ้นต่อมา? (เช่น เด็กสงบลงอย่างไร / จบกิจกรรมอย่างไร)"></textarea></li>
           </ol>
         </section>
-        <section class="panel"><h3><span class="num">3</span> สิ่งที่ฉันสังเกตได้</h3><small class="muted">พิจารณาและบันทึกจากเหตุการณ์นี้</small>
-          ${obs.map(([ic, t, ph], i) => `<label class="obs">${EC.icon(ic)}<b>${t}</b><textarea rows="2" id="tlO${i}" placeholder="${ph}"></textarea></label>`).join('')}
+        <section class="step-card" data-step="2"><h2 class="step-h">จากเหตุการณ์นี้ ฉันสังเกตเห็นอะไร?</h2>
+          <div class="obs-grid">${obs.map(([ic, t, ph], i) => `<label class="obs">${EC.icon(ic)}<b>${t}</b><textarea rows="3" id="tlO${i}" placeholder="${ph}"></textarea></label>`).join('')}</div>
         </section>
-      </div>
-      <div class="next-bar">${EC.icon('bulb')}<span><b>ตัวอย่างเหตุการณ์</b> “ช่วงเปลี่ยนกิจกรรม เด็กออทิสติกไม่ยอมเก็บของและมีความไม่สบายใจเมื่อบอกให้หยุดกิจกรรมที่กำลังสนใจ”</span>
-        <button type="button" class="btn green" id="tlSave">${EC.icon('save')} บันทึกเหตุการณ์นี้</button></div>`;
+        ${EC.stepNav('บันทึกและไปเขียนสะท้อนตนเอง')}
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
   EC.mountTimeline = function () {
@@ -494,14 +558,21 @@
       ['tlB', 'tlD', 'tlA'].forEach((id, i) => EC.$('#' + id).value = (prev.seq || [])[i] || '');
       [0, 1, 2, 3].forEach(i => EC.$('#tlO' + i).value = (prev.obs || [])[i] || '');
     }
-    EC.$('#tlSave').addEventListener('click', () => {
-      const sel = EC.$('.ev-card[aria-pressed="true"]');
-      const other = EC.$('#tlOther').value.trim();
-      if (!sel && !other) { EC.toast('เลือกหรือเขียนเหตุการณ์ก่อนนะคะ'); return; }
-      EC.store.upsert({ week: 7, kind: 'a1', title: 'เรียนรู้จากเหตุการณ์จริงของฉัน', data: {
-        eventId: sel?.dataset.id, event: sel ? W7EV.find(e => e[0] === sel.dataset.id)[1] : other, other,
-        seq: ['tlB', 'tlD', 'tlA'].map(id => EC.$('#' + id).value.trim()), obs: [0, 1, 2, 3].map(i => EC.$('#tlO' + i).value.trim()) } });
-      EC.toast('บันทึกเหตุการณ์แล้ว ✓', 'ok');
+    EC.stepper(EC.$('#tlSt'), {
+      steps: [
+        { title: 'เลือกเหตุการณ์จริง', hint: 'เลือก <b>1 เหตุการณ์จริง</b> จากการสอน หรือเขียนเหตุการณ์ของคุณเอง', validate: () => (EC.$('.ev-card[aria-pressed="true"]') || EC.$('#tlOther').value.trim()) ? '' : 'กรุณาเลือกหรือเขียนเหตุการณ์' },
+        { title: 'มองเหตุการณ์เป็นลำดับ', hint: 'เขียนสิ่งที่เกิดขึ้น <b>ก่อน – ขณะ – หลัง</b> เกิดเหตุ', validate: () => EC.need.texts(['tlB', 'tlD', 'tlA'].map(id => EC.$('#' + id))) },
+        { title: 'สิ่งที่ฉันสังเกตได้', hint: 'บันทึก <b>อารมณ์ สิ่งกระตุ้น การตอบสนอง และสิ่งที่ได้เรียนรู้</b> จากเหตุการณ์นี้', validate: () => EC.need.texts([0, 1, 2, 3].map(i => EC.$('#tlO' + i))) }
+      ],
+      onFinish() {
+        const sel = EC.$('.ev-card[aria-pressed="true"]');
+        const other = EC.$('#tlOther').value.trim();
+        EC.store.upsert({ week: 7, kind: 'a1', title: 'เรียนรู้จากเหตุการณ์จริงของฉัน', data: {
+          eventId: sel?.dataset.id, event: other || W7EV.find(e => e[0] === sel.dataset.id)[1], other,
+          seq: ['tlB', 'tlD', 'tlA'].map(id => EC.$('#' + id).value.trim()), obs: [0, 1, 2, 3].map(i => EC.$('#tlO' + i).value.trim()) } });
+        EC.toast('บันทึกเหตุการณ์แล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(900);
+      }
     });
   };
 
@@ -517,6 +588,8 @@
   EC.renderStars = function (w) {
     const html = `${EC.actHeader(w, 1, 'เติมดาวให้ท้องฟ้าของฉัน', 'เลือกและตกแต่งดาว เพื่อบอกเล่าสิ่งที่คุณได้เรียนรู้จากการฝึกทั้ง 3 กระบวนการ ในการกำกับอารมณ์จากการสอนเด็กที่มีภาวะออทิซึมสเปกตรัม',
       `<div class="bubble">จากประสบการณ์ตลอด 8 สัปดาห์<br>วันนี้...คุณได้เรียนรู้อะไร และเติบโตอย่างไรในการกำกับอารมณ์ของตนเอง?</div>`)}
+      <div class="stepper" id="skSt">
+      ${EC.stepTrack(['ดาว Monitoring', 'ดาว Evaluating', 'ดาว Modifying'])}
       <div class="stars-grid">
         <section class="sky" id="sky">
           <div class="sky-top"><span class="sky-pill">${EC.icon('star')} ท้องฟ้าของฉัน</span><span class="sky-pill" id="skyCount">${EC.icon('star')} ดาวที่เติมแล้ว : 0 / 3</span></div>
@@ -529,13 +602,13 @@
           <svg class="hills" viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50C60 20 110 30 160 44s100-30 160-16 60 18 80 10V80H0z" fill="#3c4377"/><path d="M0 64C80 44 150 58 220 62s120-14 180-6V80H0z" fill="#2c315c"/></svg>
           <div class="proc-row">${PROC.map(([id, en, th, ic]) => `<span class="proc ${id}" id="pr-${id}">${EC.icon(ic)}<b>${en}</b><small>${th.replace('ฉัน', '')}</small></span>`).join(EC.icon('arrow'))}</div>
         </section>
-        <section class="panel star-pick"><h3>${EC.icon('star')} เลือกดาวแห่งการเรียนรู้</h3><small class="muted">เลือกข้อความที่สะท้อนสิ่งที่คุณได้เรียนรู้ในแต่ละกระบวนการ</small>
-          ${PROC.map(([id, en, th, ic, items]) => `<details class="pgroup ${id}" open><summary>${EC.icon(ic)} <b>${en}</b> : ${th}</summary>
-            ${items.map((t, i) => `<label class="sopt"><input type="checkbox" data-p="${id}" data-i="${i}"><span class="sbox"></span><span>${t}</span></label>`).join('')}</details>`).join('')}
-          <button type="button" class="btn purple full" id="starSave">${EC.icon('star')} เติมดาวลงบนท้องฟ้า ${EC.icon('arrow')}</button>
+        <section class="panel star-pick"><h3>${EC.icon('star')} เลือกดาวแห่งการเรียนรู้</h3>
+          ${PROC.map(([id, en, th, ic, items], k) => `<div class="pgroup ${id}" data-step="${k}"><p class="pg-h">${EC.icon(ic)} <b>${en}</b> : ${th}</p>
+            ${items.map((t, i) => `<label class="sopt"><input type="checkbox" data-p="${id}" data-i="${i}"><span class="sbox"></span><span>${t}</span></label>`).join('')}</div>`).join('')}
         </section>
       </div>
-      <div class="howto purple">${EC.icon('bulb')}<b>วิธีทำกิจกรรม</b><span>① เลือกดาวจาก 3 กระบวนการที่คุณได้เรียนรู้ ② ดาวจะลอยไปอยู่บนท้องฟ้าของคุณ ③ เมื่อครบ 3 กระบวนการ จะได้ “กลุ่มดาวแห่งการเรียนรู้ของฉัน”</span></div>`;
+      ${EC.stepNav('เติมดาวลงบนท้องฟ้าและไปเขียนสะท้อนตนเอง')}
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
   EC.mountStars = function () {
@@ -605,14 +678,22 @@
     }));
     const prev = EC.store.find(8, 'a1')[0]?.data;
     if (prev?.keys) prev.keys.forEach(k => { const inp = EC.$(`.sopt input[data-p="${k.slice(0, 3)}"][data-i="${k.slice(3)}"]`); if (inp) { inp.checked = true; addStar(inp, false); } });
-    EC.$('#starSave').addEventListener('click', () => {
-      if (!placed.size) { EC.toast('เลือกดาวอย่างน้อย 1 ดวงก่อนนะคะ ⭐'); return; }
-      const keys = [...placed.keys()];
-      const items = keys.map(k => { const p = PROC.find(x => x[0] === k.slice(0, 3)); return `${p[1]}: ${p[4][+k.slice(3)]}`; });
-      EC.store.upsert({ week: 8, kind: 'a1', title: 'เติมดาวให้ท้องฟ้าของฉัน', data: { keys, items } });
-      const r = sky.getBoundingClientRect();
-      EC.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 26, colors: ['#ffe28a', '#fff', '#c9b6ef'], shapes: ['star'], dist: 180, gravity: 20, min: 8, max: 16 });
-      EC.toast('เติมดาวลงบนท้องฟ้าของคุณแล้ว ✓', 'ok');
+    const inProc = (id) => [...placed.values()].filter(v => v.p === id).length;
+    EC.stepper(EC.$('#skSt'), {
+      steps: PROC.map(([id, en, th]) => ({
+        title: 'ดาว ' + en,
+        hint: `เลือกดาว <b>${en}</b> (${th}) อย่างน้อย 1 ดวง — ดาวจะลอยขึ้นไปอยู่บนท้องฟ้าของคุณ`,
+        validate: () => EC.need.pick(inProc(id), `กรุณาเลือกดาว ${en} อย่างน้อย 1 ดวง ⭐`)
+      })),
+      onFinish() {
+        const keys = [...placed.keys()];
+        const items = keys.map(k => { const p = PROC.find(x => x[0] === k.slice(0, 3)); return `${p[1]}: ${p[4][+k.slice(3)]}`; });
+        EC.store.upsert({ week: 8, kind: 'a1', title: 'เติมดาวให้ท้องฟ้าของฉัน', data: { keys, items } });
+        const r = sky.getBoundingClientRect();
+        EC.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 26, colors: ['#ffe28a', '#fff', '#c9b6ef'], shapes: ['star'], dist: 180, gravity: 20, min: 8, max: 16 });
+        EC.toast('เติมดาวลงบนท้องฟ้าของคุณแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(1300);
+      }
     });
     refresh();
   };

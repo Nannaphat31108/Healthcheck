@@ -177,6 +177,10 @@ app.post('/api/me/password', needUser, ah(async (req, res) => {
 }));
 
 /* ---------- entries (own) ---------- */
+// order of the 4 steps inside a week: activity 1, reflection 1, reflection 2, end-of-week record
+const STEP_ORDER = { 'a1:0': 0, 'a2:1': 1, 'a2:2': 2, 'summary:0': 3 };
+const stepIndex = (week, kind, session) => { const k = STEP_ORDER[`${kind}:${session}`]; return k === undefined ? -1 : (week - 1) * 4 + k; };
+const STEP_SQL = `((week - 1) * 4 + CASE kind || ':' || session WHEN 'a1:0' THEN 0 WHEN 'a2:1' THEN 1 WHEN 'a2:2' THEN 2 WHEN 'summary:0' THEN 3 ELSE -100 END)`;
 const rowToEntry = (r) => ({ id: String(r.id), week: r.week, kind: r.kind, session: r.session || undefined, title: r.title, data: r.data, at: new Date(r.updated_at).getTime() });
 
 app.get('/api/entries', needUser, ah(async (req, res) => {
@@ -188,20 +192,21 @@ app.put('/api/entries', needUser, ah(async (req, res) => {
   const { week, kind, session = 0, title = '', data = {} } = req.body || {};
   if (!(Number.isInteger(week) && week >= 1 && week <= 8) || !['a1', 'a2', 'summary'].includes(kind) || ![0, 1, 2].includes(+session || 0))
     return res.status(400).json({ error: 'ข้อมูลไม่ถูกต้อง' });
+  // program is sequential: every earlier step (all previous weeks, earlier steps this week) must exist first
+  if (req.user.role !== 'admin') {
+    const idx = stepIndex(week, kind, +session || 0);
+    if (idx < 0) return res.status(400).json({ error: 'ข้อมูลไม่ถูกต้อง' });
+    const done = await q(`SELECT COUNT(DISTINCT ${STEP_SQL})::int AS n FROM entries WHERE user_id = $1 AND ${STEP_SQL} >= 0 AND ${STEP_SQL} < $2`, [req.user.id, idx]);
+    if (done.rows[0].n < idx) return res.status(409).json({ error: 'ต้องทำขั้นตอนก่อนหน้าให้เสร็จก่อน' });
+  }
   const r = await q(`INSERT INTO entries (user_id, week, kind, session, title, data) VALUES ($1,$2,$3,$4,$5,$6)
     ON CONFLICT (user_id, week, kind, session) DO UPDATE SET title = EXCLUDED.title, data = EXCLUDED.data, updated_at = now()
     RETURNING *`, [req.user.id, week, kind, +session || 0, String(title).slice(0, 200), data]);
   res.json({ entry: rowToEntry(r.rows[0]) });
 }));
 
-app.delete('/api/entries/:id', needUser, ah(async (req, res) => {
-  await q('DELETE FROM entries WHERE id = $1 AND user_id = $2', [+req.params.id || 0, req.user.id]);
-  res.json({ ok: true });
-}));
-app.delete('/api/entries', needUser, ah(async (req, res) => {
-  await q('DELETE FROM entries WHERE user_id = $1', [req.user.id]);
-  res.json({ ok: true });
-}));
+// teachers cannot delete entries: the program is sequential and the data is research data.
+// an admin can remove a whole account from the admin page if needed.
 
 /* ---------- admin ---------- */
 app.get('/api/admin/users', needUser, needAdmin, ah(async (req, res) => {

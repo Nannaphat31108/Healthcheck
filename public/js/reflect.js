@@ -36,7 +36,7 @@
       intro: 'ครูสะท้อนเหตุการณ์จริงในการสอนเด็กที่มีภาวะออทิซึม เพื่อเข้าใจความรู้สึกของตนเอง และมองหาความต้องการที่เป็นไปได้ของเด็ก',
       goal: 'ช่วยให้ครูกลับมาทบทวนเหตุการณ์ ทำความเข้าใจทั้งตนเองและเด็กที่มีภาวะออทิซึม และคิดหาวิธีการตอบสนองให้เหมาะสมก่อนลงมือทำ',
       sessions: [0, 1].map(() => [
-        { t: 'chips', label: 'เหตุการณ์ที่เลือก', hint: 'เลือกเหตุการณ์จริงในการสอนเด็กที่มีภาวะออทิซึมที่อยากสะท้อน (เลือก 1 เหตุการณ์)', list: ['เด็กไม่ยอมเริ่มกิจกรรม', 'เด็กเปลี่ยนกิจกรรมยาก', 'เด็กตอบสนองต่อเสียงดัง', 'เด็กมีพฤติกรรมซ้ำ'], multi: false },
+        { t: 'chips', label: 'เหตุการณ์ที่เลือก', hint: 'เลือกเหตุการณ์จริงในการสอนเด็กที่มีภาวะออทิซึมที่อยากสะท้อน (เลือก 1 เหตุการณ์)', list: ['เด็กไม่ยอมเริ่มกิจกรรม', 'เด็กเปลี่ยนกิจกรรมยาก', 'เด็กตอบสนองต่อเสียงดัง', 'เด็กมีพฤติกรรมซ้ำ'], multi: false, other: 'เหตุการณ์อื่น ๆ ของฉัน (โปรดระบุ)' },
         { t: 'journal', label: 'บันทึกสะท้อนตนเอง', guide: ['ในเหตุการณ์นี้ ฉันรู้สึกอะไร และอะไรทำให้ฉันรู้สึกเช่นนั้น?', 'จากสิ่งที่สังเกต เด็กอาจกำลังต้องการอะไรหรือกำลังเผชิญความยากลำบากอะไร?', 'ถ้าได้ลองอีกครั้ง ฉันอยากปรับวิธีพูด วิธีสอน หรือสภาพแวดล้อมอย่างไร?'], ph: 'เขียนสะท้อนตามคำถามชี้นำ...', max: 1000 }])
     },
     6: {
@@ -44,7 +44,7 @@
       sessions: [
         [{ t: 'pair3', label: 'สถานการณ์ของฉัน', items: [['clipboard', 'สถานการณ์ที่เลือก', 'เช่น ครูแจ้งเปลี่ยนกิจกรรม แต่เด็กยังไม่เริ่มทำตาม สีหน้าตึงเครียด และหันหน้าหนี'], ['heart', 'อารมณ์ที่สังเกต', 'เช่น หงุดหงิด / ใจเต้นเร็ว / รู้สึกตึงที่ไหล่'], ['target', 'วิธีตอบสนองที่เลือก', 'เช่น ใช้น้ำเสียงสงบ ให้เวลารอ เข้าไปช่วยทีละขั้น']] },
           { t: 'qs', label: 'วิธีที่ฉันใช้อยู่แล้ว', tips: ['เขียนจากเหตุการณ์จริงในการสอน', 'เน้นสิ่งที่สังเกตได้จากตนเองและเด็ก', 'ไม่ต้องตอบยาว เน้นเห็นกระบวนการคิดของตนเอง'], items: [['pause', 'ในสถานการณ์นี้ ฉันหยุดตัวเองได้ตรงไหนก่อนตอบสนอง?'], ['search', 'ฉันสังเกตอารมณ์หรือสัญญาณทางกายอะไรของตนเอง?'], ['chat', 'ปกติฉันมักตอบสนองต่อเด็กในลักษณะใด เมื่อเกิดเหตุการณ์แบบนี้?'], ['user', 'วิธีที่ฉันใช้ครั้งนี้ส่งผลต่อเด็กอย่างไร?'], ['flag', 'สิ่งที่ฉันอยากคงไว้หรือปรับเล็กน้อยในการสอนครั้งต่อไปคืออะไร?']], max: 300 }],
-        [{ t: 'chips', label: 'วิธีตอบสนองที่ฉันอยากลองใช้', hint: 'เลือกได้มากกว่า 1 ข้อ', list: ['ใช้น้ำเสียงสงบ', 'ให้เวลารอ', 'ใช้ภาพหรือสัญลักษณ์ช่วยสื่อสาร', 'แบ่งงานเป็นขั้นเล็ก ๆ', 'ลดสิ่งเร้าในห้อง', 'บอกล่วงหน้าก่อนเปลี่ยนกิจกรรม'], multi: true },
+        [{ t: 'chips', label: 'วิธีตอบสนองที่ฉันอยากลองใช้', hint: 'เลือกได้มากกว่า 1 ข้อ', list: ['ใช้น้ำเสียงสงบ', 'ให้เวลารอ', 'ใช้ภาพหรือสัญลักษณ์ช่วยสื่อสาร', 'แบ่งงานเป็นขั้นเล็ก ๆ', 'ลดสิ่งเร้าในห้อง', 'บอกล่วงหน้าก่อนเปลี่ยนกิจกรรม'], multi: true, other: 'วิธีอื่น ๆ ของฉัน (ถ้ามี)' },
           { t: 'qs', label: 'เลือกวิธีตอบสนองให้เหมาะกับเด็ก', items: [['clipboard', 'สถานการณ์ที่ฉันนึกถึงคืออะไร?'], ['target', 'ฉันเลือกวิธีตอบสนองแบบใด และเพราะอะไรจึงเหมาะกับเด็กคนนี้?'], ['user', 'ฉันคาดว่าวิธีนี้จะส่งผลต่อเด็กอย่างไร?'], ['heart', 'ระหว่างนั้น ฉันจะดูแลอารมณ์ของตนเองอย่างไร?']], max: 300 }]
       ]
     },
@@ -73,13 +73,16 @@
     switch (p.t) {
       case 'events':
         return `<section class="rpart" data-t="choice" data-i="${i}">${head}<div class="ev-grid">${p.list.map(([t, f]) => `
-          <button type="button" class="ev-card" aria-pressed="false" data-v="${EC.esc(t)}"><span class="radio"></span><span class="ev-face">${EC.face(f, 46)}</span><span><b>${t}</b></span></button>`).join('')}</div></section>`;
+          <button type="button" class="ev-card" aria-pressed="false" data-v="${EC.esc(t)}"><span class="radio"></span><span class="ev-face">${EC.face(f, 46)}</span><span><b>${t}</b></span></button>`).join('')}</div>
+          <label class="other-ev">${EC.icon('pencil')} <span>เหตุการณ์อื่น ๆ ของฉัน (โปรดระบุ) — ประสบการณ์ของคุณอาจไม่ตรงกับตัวเลือกด้านบน</span>
+          <textarea class="ta" rows="2" maxlength="400" data-extra placeholder="เล่าเหตุการณ์จริงที่เกิดขึ้นในห้องเรียนของคุณ..."></textarea></label></section>`;
       case 'faces':
         return `<section class="rpart" data-t="multi" data-i="${i}">${head}<div class="face-grid">${p.ids.map(id => `
           <button type="button" class="face-opt" aria-pressed="false" data-v="${EC.EMO[id]}"><span class="sq"></span>${EC.face(id, 44)}<b>${EC.EMO[id]}</b></button>`).join('')}</div></section>`;
       case 'chips':
         return `<section class="rpart" data-t="${p.multi ? 'multi' : 'choice'}" data-i="${i}">${head}<div class="tchips big">${p.list.map(t => `<button type="button" class="tchip" aria-pressed="false" data-v="${EC.esc(t)}">${t}</button>`).join('')}</div>
-          ${p.text ? `<textarea class="ta mt" rows="2" maxlength="1000" data-extra placeholder="${p.text}"></textarea>` : ''}</section>`;
+          ${p.text ? `<textarea class="ta mt" rows="2" maxlength="1000" data-extra data-need="text" placeholder="${p.text}"></textarea>`
+            : p.other ? `<label class="other-ev">${EC.icon('pencil')} <span>${p.other}</span><textarea class="ta" rows="2" maxlength="400" data-extra placeholder="โปรดระบุ..."></textarea></label>` : ''}</section>`;
       case 'qs':
         return `<section class="rpart" data-t="texts" data-i="${i}">${head}<div class="${p.tips ? 'qs-with-tips' : ''}"><div class="qs">${p.items.map(([ic, q], k) => `
           <label class="q"><span class="q-ic">${EC.icon(ic)}</span><span class="q-t"><b>${q}</b>
@@ -102,26 +105,29 @@
     return '';
   }
 
+  const closing = (sess, cfg) => cfg.final && sess === 2;
   EC.renderReflect = function (w, sess = 1) {
     const cfg = EC.REFLECT[w.n];
-    const saved = [1, 2].map(s => EC.store.find(w.n, 'a2').some(e => e.session === s));
-    const tabs = `<div class="sess-tabs" role="tablist">${w.sessions.map((t, i) => `
-      <a role="tab" href="#/week/${w.n}/a2/${i + 1}" class="${sess === i + 1 ? 'on' : ''}" aria-selected="${sess === i + 1}">ครั้งที่ ${i + 1} : ${t} ${saved[i] ? `<span class="ok">${EC.icon('tick')}</span>` : ''}</a>`).join('')}</div>`;
-    const parts = cfg.sessions[sess - 1].map(part).join('');
+    const tabs = `<div class="sess-tabs" role="tablist">${w.sessions.map((t, i) => {
+      const done = EC.stepDone(w.n, i + 1), open = EC.isOpen(w.n, i + 1);
+      const label = `ครั้งที่ ${i + 1} : ${t} ${done ? `<span class="ok">${EC.icon('tick')}</span>` : open ? '' : EC.icon('lock')}`;
+      return open ? `<a role="tab" href="#/week/${w.n}/a2/${i + 1}" class="${sess === i + 1 ? 'on' : ''}" aria-selected="${sess === i + 1}">${label}</a>`
+        : `<span role="tab" class="locked" aria-disabled="true" title="ปลดล็อกเมื่อทำครั้งที่ 1 เสร็จ">${label}</span>`;
+    }).join('')}</div>`;
+    const ps = cfg.sessions[sess - 1];
+    const titles = ps.map(p => p.label).concat(closing(sess, cfg) ? ['ปิดโปรแกรม'] : []);
     const html = `${EC.actHeader(w, 2, w.acts[1].title, cfg.intro, `<div class="ref-art">${EC.art.journal()}</div>`)}
       ${cfg.goal ? `<div class="goal-strip">${EC.icon('target')}<b>เป้าหมาย</b><span>${cfg.goal}</span></div>` : ''}
       ${cfg.note ? `<div class="goal-strip soft">${EC.icon('target')}<b>โปรดระลึก</b><span>${cfg.note}</span></div>` : ''}
-      <div class="sess-bar">${EC.icon('calendar')}<b>บันทึกสะท้อนตนเอง 2 ครั้งต่อสัปดาห์</b>${tabs}</div>
-      <form class="reflect" id="rf">${parts}
-        ${cfg.final && sess === 2 ? `<section class="closing">${EC.art.stars()}<div><h3>สรุปการปิดโปรแกรม</h3><p>ฉันได้ทบทวนและสรุปการเรียนรู้ตลอด 8 สัปดาห์ และพร้อมนำสิ่งที่ได้ไปใช้ในการสอนต่อไป</p></div>
-          <div class="close-checks"><label><input type="checkbox" required> ฉันเขียนสะท้อนครบแล้ว</label><label><input type="checkbox"> ฉันมองเห็นจุดแข็งของตนเอง</label><label><input type="checkbox"> ฉันมีแนวทางดูแลอารมณ์ต่อไป</label></div></section>` : ''}
-        <div class="form-actions">
-          <button type="button" class="btn ghost" id="rfClear">${EC.icon('refresh')} ล้างข้อความ</button>
-          <button type="submit" class="btn brown">${EC.icon('save')} ${cfg.final && sess === 2 ? 'บันทึกและจบโปรแกรม' : 'บันทึกการสะท้อน'}</button>
-          ${sess === 1 ? `<a class="btn ghost" href="#/week/${w.n}/a2/2">ไปต่อ : ครั้งที่ 2 ${EC.icon('arrow')}</a>` : `<a class="btn ghost" href="#/week/${w.n}/summary">สรุปสัปดาห์ ${EC.icon('arrow')}</a>`}
-        </div>
+      <div class="sess-bar">${EC.icon('calendar')}<b>เขียนสะท้อนตนเอง 2 ครั้งต่อสัปดาห์</b>${tabs}</div>
+      <form class="reflect stepper" id="rf" novalidate>
+        ${EC.stepTrack(titles)}
+        ${ps.map((p, i) => part(p, i).replace('<section class="rpart', `<section data-step="${i}" class="rpart`)).join('')}
+        ${closing(sess, cfg) ? `<section class="closing" data-step="${ps.length}">${EC.art.stars()}<div><h3>สรุปการปิดโปรแกรม</h3><p>ฉันได้ทบทวนและสรุปการเรียนรู้ตลอด 8 สัปดาห์ และพร้อมนำสิ่งที่ได้ไปใช้ในการสอนต่อไป</p></div>
+          <div class="close-checks"><label><input type="checkbox"> ฉันเขียนสะท้อนครบแล้ว</label><label><input type="checkbox"> ฉันมองเห็นจุดแข็งของตนเอง</label><label><input type="checkbox"> ฉันมีแนวทางดูแลอารมณ์ต่อไป</label></div></section>` : ''}
+        ${EC.stepNav(sess === 1 ? 'บันทึกและไปเขียนครั้งที่ 2' : 'บันทึกและไปบันทึกความรู้สึกท้ายสัปดาห์')}
       </form>`;
-    return EC.weekShell(w, 'a2', html);
+    return EC.weekShell(w, 'a2-' + sess, html);
   };
 
   EC.mountReflect = function (w, sess = 1) {
@@ -162,20 +168,36 @@
     }
     const prev = EC.store.find(w.n, 'a2').find(e => e.session === sess);
     if (prev) fill(prev.data.parts);
-    EC.$('#rfClear').addEventListener('click', () => { EC.$$('textarea', form).forEach(t => { t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); }); EC.$$('[aria-pressed="true"]', form).forEach(x => x.setAttribute('aria-pressed', 'false')); });
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const parts = collect();
-      const any = parts.some(p => Array.isArray(p) ? p.some(Boolean) : (p.sel.length || p.text));
-      if (!any) { EC.toast('ลองเขียนหรือเลือกคำตอบอย่างน้อย 1 ข้อนะคะ ✍️'); return; }
-      const labels = cfg.sessions[sess - 1].map(p => p.label);
-      const questions = cfg.sessions[sess - 1].map(p => p.items ? p.items.map(x => x[1]) : p.guide ? ['บันทึก'] : p.a ? [p.a[1], p.b[1]] : null);
-      EC.store.upsert({ week: w.n, kind: 'a2', session: sess, title: `${w.acts[1].title} · ครั้งที่ ${sess}`, data: { parts, labels, questions } });
-      EC.$$('.sess-tabs a')[sess - 1].insertAdjacentHTML('beforeend', EC.$('.ok', EC.$$('.sess-tabs a')[sess - 1]) ? '' : `<span class="ok">${EC.icon('tick')}</span>`);
-      if (cfg.final && sess === 2) { EC.celebrate(); return; }
-      const r = form.getBoundingClientRect();
-      EC.burst(r.left + r.width / 2, Math.min(window.innerHeight - 80, r.bottom - 40), { count: 18, shapes: ['heart', 'star'], up: true, dist: 120 });
-      EC.toast('บันทึกการสะท้อนแล้ว ✓', 'ok');
+    form.addEventListener('submit', e => e.preventDefault());
+
+    // every part is required
+    function checkPart(sec) {
+      if (sec.dataset.t === 'texts') return EC.need.texts(EC.$$('textarea', sec), 'กรุณาตอบให้ครบทุกข้อก่อนไปขั้นตอนถัดไป ✍️');
+      const n = EC.$$('[aria-pressed="true"]', sec).length;
+      const extra = EC.$('[data-extra]', sec);
+      if (extra && extra.dataset.need === 'text') return n ? (extra.value.trim() ? '' : 'กรุณาเขียนตัวอย่างหรือรายละเอียดเพิ่มเติม') : 'กรุณาเลือกอย่างน้อย 1 ข้อ';
+      return n || (extra && extra.value.trim()) ? '' : (extra ? 'กรุณาเลือก หรือเขียนในช่อง “อื่น ๆ”' : 'กรุณาเลือกอย่างน้อย 1 ข้อ');
+    }
+    const ps = cfg.sessions[sess - 1];
+    const hintFor = (p) => p.t === 'events' ? 'เลือก <b>เหตุการณ์ในการสอน</b> ที่เกิดขึ้นจริง หรือเขียนเหตุการณ์ของคุณเองในช่อง “อื่น ๆ”'
+      : p.t === 'faces' ? 'แตะเลือก <b>อารมณ์</b> ที่เกิดขึ้น (เลือกได้หลายข้อ)'
+      : p.t === 'chips' ? `${p.multi ? 'เลือกได้หลายข้อ' : 'เลือก 1 ข้อ'} — <b>${p.label}</b>`
+      : p.t === 'journal' ? 'อ่าน <b>คำถามชี้นำ</b> แล้วเขียนบันทึกสะท้อนตนเอง'
+      : `ตอบคำถาม <b>${p.label}</b> ให้ครบทุกข้อ`;
+    const steps = ps.map((p, i) => ({ title: p.label, hint: hintFor(p), validate: () => checkPart(EC.$(`.rpart[data-step="${i}"]`, form)) }));
+    if (closing(sess, cfg)) steps.push({ title: 'ปิดโปรแกรม', hint: 'ทบทวนและ <b>ยืนยัน</b> การปิดโปรแกรม', validate: () => EC.$$('.close-checks input', form).every(c => c.checked) ? '' : 'กรุณาทำเครื่องหมายให้ครบทั้ง 3 ข้อ' });
+    EC.stepper(form, {
+      steps,
+      onFinish() {
+        const parts = collect();
+        const labels = ps.map(p => p.label);
+        const questions = ps.map(p => p.items ? p.items.map(x => x[1]) : p.guide ? ['บันทึก'] : p.a ? [p.a[1], p.b[1]] : null);
+        EC.store.upsert({ week: w.n, kind: 'a2', session: sess, title: `${w.acts[1].title} · ครั้งที่ ${sess}`, data: { parts, labels, questions } });
+        const r = form.getBoundingClientRect();
+        EC.burst(r.left + r.width / 2, Math.min(window.innerHeight - 80, r.bottom - 40), { count: 18, shapes: ['heart', 'star'], up: true, dist: 120 });
+        EC.toast(`บันทึกการสะท้อนครั้งที่ ${sess} แล้ว ✓`, 'ok');
+        EC.goNext(1000);
+      }
     });
   };
 

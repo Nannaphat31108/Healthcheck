@@ -58,12 +58,31 @@
 
     const html = `${EC.actHeader(w, 1, 'ส้มตำความรู้สึก', 'สำรวจอารมณ์ของตนเองในช่วงการสอนเด็กที่มีภาวะออทิซึมสเปกตรัม',
       `<div class="float-ingr">${['tomato', 'lime', 'chili'].map((k, i) => `<span style="--d:${i * .6}s">${EC.ingredient(k, 54)}</span>`).join('')}</div>`)}
-      ${EC.howTo('เลือก “ความรู้สึก” ที่เกิดขึ้นกับคุณในช่วงการสอน (เลือกได้มากกว่า 1 รายการ) แล้ววัตถุดิบจะถูกโยนลงครก จากนั้นกด <b>คลุกความรู้สึก</b>')}
       <div class="somtam-grid">
-        <section class="panel">
-          <h3>${EC.icon('sprout')} เลือกเครื่องปรุงความรู้สึก <small>(คลิกเลือกได้หลายข้อ)</small></h3>
-          <div class="emo-grid">${cards}</div>
-        </section>
+        <div class="stepper" id="stSteps">
+          ${EC.stepTrack(['เลือกความรู้สึก', 'สัญญาณในร่างกาย', 'คลุกความรู้สึก', 'สะท้อนตนเอง'])}
+          <section class="step-card" data-step="0">
+            <h2 class="step-h">ช่วงการสอนที่ผ่านมา คุณรู้สึกอย่างไรบ้าง?</h2>
+            <p class="step-sub">แตะการ์ดความรู้สึก แล้ววัตถุดิบจะถูกโยนลงครก (เลือกได้หลายข้อ)</p>
+            <div class="emo-grid">${cards}</div>
+          </section>
+          <section class="step-card" data-step="1">
+            <h2 class="step-h">ตอนนั้น ร่างกายของคุณส่งสัญญาณอะไรบ้าง?</h2>
+            <p class="step-sub">ทุกสัญญาณที่เลือกจะกลายเป็นเครื่องปรุงโรยลงครก (เลือกได้หลายข้อ)</p>
+            <div class="sig-list" id="stSignals">${signals}</div>
+          </section>
+          <section class="step-card" data-step="2">
+            <h2 class="step-h">ได้เวลาคลุกความรู้สึก!</h2>
+            <p class="step-sub">กดปุ่มด้านล่างเพื่อตำและคลุกทุกความรู้สึกให้เข้ากัน — ทุกความรู้สึกเป็นส่วนหนึ่งของรสชาติในวันนี้</p>
+            <div class="bowl-actions">
+              <button type="button" class="btn pound" id="stPound">${EC.icon('mortar')} คลุกความรู้สึก</button>
+            </div>
+          </section>
+          <section class="step-card" data-step="3">
+            <div id="stResult"></div>
+          </section>
+          ${EC.stepNav('บันทึกและไปเขียนสะท้อนตนเอง')}
+        </div>
         <section class="panel bowl-panel">
           <h3>${EC.icon('mortar')} ส้มตำความรู้สึกของวันนี้</h3>
           <div class="stage" id="stStage">
@@ -83,21 +102,10 @@
             <div class="stage-hint" id="stHint">แตะความรู้สึกทางซ้าย<br>เพื่อโยนวัตถุดิบลงครก ✨</div>
           </div>
           <div class="bowl-status" id="stStatus">ยังไม่มีวัตถุดิบในครก</div>
-          <div class="bowl-actions">
-            <button type="button" class="btn ghost sm" id="stReset">${EC.icon('refresh')} เทใหม่</button>
-            <button type="button" class="btn pound" id="stPound">${EC.icon('mortar')} คลุกความรู้สึก ${EC.icon('arrow')}</button>
-          </div>
+          <div class="chips center" id="stChips"></div>
+          <div class="bowl-actions"><button type="button" class="btn ghost sm" id="stReset">${EC.icon('refresh')} เทใหม่</button></div>
         </section>
-        <section class="panel side-panel">
-          <h3>${EC.icon('clipboard')} อารมณ์ที่เลือก</h3>
-          <div class="chips" id="stChips"><span class="muted">ยังไม่ได้เลือก</span></div>
-          <h3 class="mt">${EC.icon('search')} สัญญาณที่สังเกตได้ <small>(เลือกได้หลายข้อ)</small></h3>
-          <div class="sig-list" id="stSignals">${signals}</div>
-        </section>
-      </div>
-      <section class="result-card" id="stResult" hidden></section>
-      <div class="next-bar">${EC.icon('flag')}<span>เมื่อเลือกเครื่องปรุงเสร็จ ระบบจะพาไปบันทึกสะท้อนตนเอง</span>
-        <a class="btn green" href="#/week/1/a2">ไปต่อ : อารมณ์ของฉันในห้องเรียน ${EC.icon('arrow')}</a></div>`;
+      </div>`;
     return EC.weekShell(w, 'a1', html);
   };
 
@@ -203,7 +211,7 @@
     function setPounded(v) {
       pounded = v;
       stage.classList.toggle('done', v);
-      if (!v) { EC.$('#stResult').hidden = true; }
+      if (!v) EC.$('#stResult').innerHTML = '';
     }
 
     async function toggle(card) {
@@ -258,6 +266,7 @@
       EC.$$('.emo-card.on').forEach(c => { c.classList.remove('on'); c.setAttribute('aria-pressed', 'false'); });
       EC.$$('#stSignals input').forEach(i => i.checked = false);
       setPounded(false); redrawMound(); updateUI();
+      if (st.current > 0) st.show(0, true);
     });
 
     const words = ['ตุ๊ก!', 'ป๊อก!', 'ตำ!', 'คลุก~', 'ตุ๊ก ตุ๊ก!', 'แซ่บ!'];
@@ -324,6 +333,7 @@
       EC.burst(mr.left + mr.width / 2, mr.top + mr.height * .3, { count: 26, shapes: ['heart', 'star'], up: true, dist: 170, gravity: 30, min: 10, max: 18, duration: 1400 });
       thud(520, 0.18, 0.08); setTimeout(() => thud(660, 0.22, 0.08), 140);
       showResult();
+      setTimeout(() => st.show(3, true), 900);
     }
     EC.$('#stPound').addEventListener('click', pound);
 
@@ -339,17 +349,25 @@
           ${sigs.length ? `<p class="plate-sig"><b>สัญญาณที่สังเกตได้:</b> ${sigs.map(EC.esc).join(' · ')}</p>` : ''}
           <p class="plate-note">ทุกความรู้สึกเป็นส่วนหนึ่งของรสชาติในวันนี้ ไม่มีถูกหรือผิด — การรู้ทันว่ามีอะไรอยู่ในครก คือก้าวแรกของการดูแลอารมณ์ 💛</p>
         </div>
-        <label class="field"><span>อยากบอกอะไรกับตัวเองหลังปรุงส้มตำจานนี้? <small>(ไม่บังคับ)</small></span>
-          <textarea id="stNote" rows="2" maxlength="300" placeholder="เช่น วันนี้มีความกังวลอยู่มาก แต่ก็มีความภูมิใจเล็ก ๆ ด้วย...">${EC.esc(prev?.data?.note || '')}</textarea></label>
-        <div class="row-end"><button type="button" class="btn brown" id="stSave">${EC.icon('save')} บันทึกส้มตำจานนี้</button></div>`;
-      box.hidden = false;
+        <label class="field big"><span class="step-h sm">หลังปรุงส้มตำจานนี้ คุณอยากบอกอะไรกับตัวเอง?</span>
+          <textarea id="stNote" rows="3" maxlength="300" placeholder="เช่น วันนี้มีความกังวลอยู่มาก แต่ก็มีความภูมิใจเล็ก ๆ ด้วย...">${EC.esc(prev?.data?.note || '')}</textarea></label>`;
       box.classList.remove('rise'); void box.offsetWidth; box.classList.add('rise');
-      EC.$('#stSave').addEventListener('click', () => {
-        EC.store.upsert({ week: 1, kind: 'a1', title: 'ส้มตำความรู้สึก', data: { emotions: ids.map(id => EC.EMO[id]), signals: sigs, note: EC.$('#stNote').value.trim() } });
-        EC.toast('บันทึกส้มตำความรู้สึกแล้ว ✓', 'ok');
-      });
-      setTimeout(() => box.scrollIntoView({ behavior: EC.reduceMotion() ? 'auto' : 'smooth', block: 'nearest' }), 250);
     }
+
+    const st = EC.stepper(EC.$('#stSteps'), {
+      steps: [
+        { title: 'เลือกความรู้สึก', hint: 'แตะเลือก <b>ความรู้สึก</b> ที่เกิดขึ้นระหว่างการสอน วัตถุดิบจะลอยลงครก — เลือกได้หลายข้อ', validate: () => EC.need.pick(selected.size, 'กรุณาเลือกความรู้สึกอย่างน้อย 1 ข้อ') },
+        { title: 'สัญญาณในร่างกาย', hint: 'เลือก <b>สัญญาณในร่างกาย</b> ที่คุณสังเกตได้ในตอนนั้น', validate: () => EC.need.pick(EC.$$('#stSignals input:checked').length, 'กรุณาเลือกสัญญาณอย่างน้อย 1 ข้อ') },
+        { title: 'คลุกความรู้สึก', hint: 'กดปุ่ม <b>คลุกความรู้สึก</b> แล้วดูสากตำทุกความรู้สึกให้เข้ากัน', validate: () => pounded ? '' : 'กดปุ่ม “คลุกความรู้สึก” ก่อนนะคะ' },
+        { title: 'สะท้อนตนเอง', hint: 'ดูส้มตำความรู้สึกของคุณ แล้ว <b>เขียนสิ่งที่อยากบอกตัวเอง</b>', enter: () => { if (pounded && !EC.$('#stNote')) showResult(); }, validate: () => EC.need.text(EC.$('#stNote')) }
+      ],
+      onFinish() {
+        const ids = [...selected.keys()];
+        EC.store.upsert({ week: 1, kind: 'a1', title: 'ส้มตำความรู้สึก', data: { emotions: ids.map(id => EC.EMO[id]), signals: EC.$$('#stSignals input:checked').map(i => i.value), note: EC.$('#stNote').value.trim() } });
+        EC.toast('บันทึกส้มตำความรู้สึกแล้ว ✓ ไปเขียนสะท้อนตนเองกันต่อ', 'ok');
+        EC.goNext(900);
+      }
+    });
 
     updateUI();
   };
